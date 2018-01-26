@@ -1,1 +1,6 @@
 .DS_Store
+MacExperiment/ESTK.cmd/AdobeExtendScript.framework
+MacExperiment/ESTK.cmd/AdobeScCore.framework
+MacExperiment/ESTK.cmd/DerivedData
+MacExperiment/ESTK.cmd/ESTK.cmd.xcodeproj/project.xcworkspace
+MacExperiment/ESTK.cmd/ESTK.cmd.xcodeproj/xcuserdata
