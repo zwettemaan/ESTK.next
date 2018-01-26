@@ -1,10 +1,16 @@
 #include <iostream>
 
 #include "ScCore/InitTerm.hpp"
+#include "ScCore/Utils.h"
+
 #include "ScScript/InitTerm.hpp"
 
+#include "ESTK_N/Logger.hpp"
+
+#include "Tests/Tests_All.hpp"
+
 void exitFunc() {
-  std::cout << "Goodbye, World!\n";
+	ESTK_N::Logger::logNote("exitFunc called");
 }
 
 int main(int argc, const char * argv[]) {
@@ -16,7 +22,12 @@ int main(int argc, const char * argv[]) {
   ScScript::InitTerm::init();
   ScScript::InitTerm::atExit(exitFunc);
   
-  std::cout << "Hello, World!\n";
+  bool testOK = ESTK_N::test_all();
+  if (! testOK) {
+    ESTK_N::Logger::logError("main: some startup tests failed");
+  }
+  
+  std::cout << "ESTK.cmd started\n";
   
   ScScript::InitTerm::exit();
   ScCore::InitTerm::exit();

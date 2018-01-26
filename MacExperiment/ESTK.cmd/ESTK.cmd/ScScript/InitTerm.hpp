@@ -2,14 +2,16 @@
 #define __ScScript_InitTerm__
 
 namespace ScScript {
-  class InitTerm {
-  public:
-    static bool isInitialized();
-    static void exit();
-    static void init();
-    static void atExit(void (*)());
-  };
-}
+
+class InitTerm {
+public:
+  static bool isInitialized();
+  static void exit();
+  static void init();
+  static void atExit(void (*)());
+};
+
+};
 
 #endif
 

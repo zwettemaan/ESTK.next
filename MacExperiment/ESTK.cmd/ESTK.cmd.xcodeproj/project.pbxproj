@@ -12,6 +12,10 @@
 		01FB7BE9201BBDA70077008C /* AdobeScCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FB7BE7201BBDA10077008C /* AdobeScCore.framework */; };
 		01FB7BEA201BC0DE0077008C /* AdobeExtendScript.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 01FB7BE6201BBDA10077008C /* AdobeExtendScript.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01FB7BEB201BC0E20077008C /* AdobeScCore.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 01FB7BE7201BBDA10077008C /* AdobeScCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		01FB7BF3201BDBF40077008C /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01FB7BF1201BDBA50077008C /* Utils.cpp */; };
+		01FB7C00201BDD190077008C /* Test_memchr16.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01FB7BFE201BDD190077008C /* Test_memchr16.cpp */; };
+		01FB7C03201BDD560077008C /* Tests_All.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01FB7C01201BDD560077008C /* Tests_All.cpp */; };
+		01FB7C06201BDF020077008C /* Logger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01FB7C05201BDF020077008C /* Logger.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,8 +37,19 @@
 		01B8494E201BB9A600CE8B40 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		01FB7BE6201BBDA10077008C /* AdobeExtendScript.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdobeExtendScript.framework; sourceTree = "<group>"; };
 		01FB7BE7201BBDA10077008C /* AdobeScCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdobeScCore.framework; sourceTree = "<group>"; };
-		01FB7BEC201BC2480077008C /* ScScript */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ScScript; sourceTree = "<group>"; };
-		01FB7BED201BC2480077008C /* ScCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ScCore; sourceTree = "<group>"; };
+		01FB7BF1201BDBA50077008C /* Utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Utils.cpp; path = ESTK.cmd/ESTK_N/Utils.cpp; sourceTree = SOURCE_ROOT; };
+		01FB7BF2201BDBA50077008C /* Utils.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = Utils.hpp; path = ESTK.cmd/ESTK_N/Utils.hpp; sourceTree = SOURCE_ROOT; };
+		01FB7BF7201BDC560077008C /* OpaqueTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OpaqueTypes.hpp; sourceTree = "<group>"; };
+		01FB7BF8201BDC560077008C /* InitTerm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = InitTerm.hpp; sourceTree = "<group>"; };
+		01FB7BF9201BDC6C0077008C /* InitTerm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = InitTerm.hpp; sourceTree = "<group>"; };
+		01FB7BFA201BDC6C0077008C /* OpaqueTypes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = OpaqueTypes.hpp; sourceTree = "<group>"; };
+		01FB7BFB201BDC6C0077008C /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		01FB7BFE201BDD190077008C /* Test_memchr16.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test_memchr16.cpp; sourceTree = "<group>"; };
+		01FB7BFF201BDD190077008C /* Test_memchr16.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_memchr16.hpp; sourceTree = "<group>"; };
+		01FB7C01201BDD560077008C /* Tests_All.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tests_All.cpp; sourceTree = "<group>"; };
+		01FB7C02201BDD560077008C /* Tests_All.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tests_All.hpp; sourceTree = "<group>"; };
+		01FB7C04201BDF020077008C /* Logger.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Logger.hpp; sourceTree = "<group>"; };
+		01FB7C05201BDF020077008C /* Logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Logger.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,11 +86,54 @@
 		01B8494D201BB9A600CE8B40 /* ESTK.cmd */ = {
 			isa = PBXGroup;
 			children = (
+				01FB7BFC201BDCCA0077008C /* Tests */,
+				01FB7BF6201BDC3E0077008C /* ScScript */,
+				01FB7BF5201BDC380077008C /* ScCore */,
+				01FB7BF4201BDC020077008C /* ESTK_N */,
 				01B8494E201BB9A600CE8B40 /* main.cpp */,
-				01FB7BED201BC2480077008C /* ScCore */,
-				01FB7BEC201BC2480077008C /* ScScript */,
 			);
 			path = ESTK.cmd;
+			sourceTree = "<group>";
+		};
+		01FB7BF4201BDC020077008C /* ESTK_N */ = {
+			isa = PBXGroup;
+			children = (
+				01FB7C05201BDF020077008C /* Logger.cpp */,
+				01FB7C04201BDF020077008C /* Logger.hpp */,
+				01FB7BF1201BDBA50077008C /* Utils.cpp */,
+				01FB7BF2201BDBA50077008C /* Utils.hpp */,
+			);
+			path = ESTK_N;
+			sourceTree = "<group>";
+		};
+		01FB7BF5201BDC380077008C /* ScCore */ = {
+			isa = PBXGroup;
+			children = (
+				01FB7BF9201BDC6C0077008C /* InitTerm.hpp */,
+				01FB7BFA201BDC6C0077008C /* OpaqueTypes.hpp */,
+				01FB7BFB201BDC6C0077008C /* Utils.h */,
+			);
+			path = ScCore;
+			sourceTree = "<group>";
+		};
+		01FB7BF6201BDC3E0077008C /* ScScript */ = {
+			isa = PBXGroup;
+			children = (
+				01FB7BF8201BDC560077008C /* InitTerm.hpp */,
+				01FB7BF7201BDC560077008C /* OpaqueTypes.hpp */,
+			);
+			path = ScScript;
+			sourceTree = "<group>";
+		};
+		01FB7BFC201BDCCA0077008C /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				01FB7BFE201BDD190077008C /* Test_memchr16.cpp */,
+				01FB7BFF201BDD190077008C /* Test_memchr16.hpp */,
+				01FB7C01201BDD560077008C /* Tests_All.cpp */,
+				01FB7C02201BDD560077008C /* Tests_All.hpp */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,6 +194,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				01B8494F201BB9A600CE8B40 /* main.cpp in Sources */,
+				01FB7C03201BDD560077008C /* Tests_All.cpp in Sources */,
+				01FB7C00201BDD190077008C /* Test_memchr16.cpp in Sources */,
+				01FB7C06201BDF020077008C /* Logger.cpp in Sources */,
+				01FB7BF3201BDBF40077008C /* Utils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
