@@ -3,7 +3,7 @@
 
 namespace ESTK_N {
 
-extern bool test_memchr16();
+bool test_memchr16();
 
 }
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0151BD1E201BE96900CD42FD /* Test_StringCreation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0151BD1C201BE96900CD42FD /* Test_StringCreation.cpp */; };
 		01B8494F201BB9A600CE8B40 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01B8494E201BB9A600CE8B40 /* main.cpp */; };
 		01FB7BE8201BBDA40077008C /* AdobeExtendScript.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FB7BE6201BBDA10077008C /* AdobeExtendScript.framework */; };
 		01FB7BE9201BBDA70077008C /* AdobeScCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FB7BE7201BBDA10077008C /* AdobeScCore.framework */; };
@@ -33,6 +34,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0151BD1C201BE96900CD42FD /* Test_StringCreation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test_StringCreation.cpp; sourceTree = "<group>"; };
+		0151BD1D201BE96900CD42FD /* Test_StringCreation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_StringCreation.hpp; sourceTree = "<group>"; };
+		0151BD1F201BE9F300CD42FD /* String.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = String.hpp; sourceTree = "<group>"; };
 		01B8494B201BB9A600CE8B40 /* ESTK.cmd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ESTK.cmd; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B8494E201BB9A600CE8B40 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		01FB7BE6201BBDA10077008C /* AdobeExtendScript.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdobeExtendScript.framework; sourceTree = "<group>"; };
@@ -109,6 +113,7 @@
 		01FB7BF5201BDC380077008C /* ScCore */ = {
 			isa = PBXGroup;
 			children = (
+				0151BD1F201BE9F300CD42FD /* String.hpp */,
 				01FB7BF9201BDC6C0077008C /* InitTerm.hpp */,
 				01FB7BFA201BDC6C0077008C /* OpaqueTypes.hpp */,
 				01FB7BFB201BDC6C0077008C /* Utils.h */,
@@ -128,6 +133,8 @@
 		01FB7BFC201BDCCA0077008C /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				0151BD1C201BE96900CD42FD /* Test_StringCreation.cpp */,
+				0151BD1D201BE96900CD42FD /* Test_StringCreation.hpp */,
 				01FB7BFE201BDD190077008C /* Test_memchr16.cpp */,
 				01FB7BFF201BDD190077008C /* Test_memchr16.hpp */,
 				01FB7C01201BDD560077008C /* Tests_All.cpp */,
@@ -196,6 +203,7 @@
 				01B8494F201BB9A600CE8B40 /* main.cpp in Sources */,
 				01FB7C03201BDD560077008C /* Tests_All.cpp in Sources */,
 				01FB7C00201BDD190077008C /* Test_memchr16.cpp in Sources */,
+				0151BD1E201BE96900CD42FD /* Test_StringCreation.cpp in Sources */,
 				01FB7C06201BDF020077008C /* Logger.cpp in Sources */,
 				01FB7BF3201BDBF40077008C /* Utils.cpp in Sources */,
 			);
