@@ -9,13 +9,9 @@ namespace ScScript {
 
 class API;
 class BinaryNode;
-class BreakpointInfo;
 class Callback;
-class DebugAPI;
-class Debugger;
 class Dispatcher;
 class EmptyNode;
-class Engine;
 class ESContext;
 class FileDisp;
 class GlobalDialogs;
@@ -24,13 +20,10 @@ class LabelNode;
 class ListNode;
 class LiveObjectAPI;
 class Node;
-class ParserAPI;
 class Preprocessor;
 class RuntimeError;
 class ScopeInfo;
 class ScopeNode;
-class Script;
-class ScriptContainer;
 class TernaryNode;
 class UnaryNode;
 class ValidateData;

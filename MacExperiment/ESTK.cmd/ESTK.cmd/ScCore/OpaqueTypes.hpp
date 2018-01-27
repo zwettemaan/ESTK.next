@@ -8,7 +8,6 @@
 namespace ScCore {
 
 class Allocator;
-class Array;
 class ASInterface;
 class ASPackage;
 class BasicArray;
@@ -17,9 +16,7 @@ class Callbacks;
 class ClassInfo;
 class Cloneable;
 class DataMessage;
-class Dictionary;
 class Encoder;
-class File;
 class FileFilter;
 class FileWrapper;
 class Heap;
@@ -29,9 +26,7 @@ class LiveBase;
 class LiveCollection;
 class LiveComponent;
 class LiveMessage;
-class LiveObject;
 class LivePropertyManager;
-class Localizer;
 class Lockable;
 class Message;
 class ParamInfo;
@@ -42,7 +37,6 @@ class ServiceInfo;
 class Thread;
 class TypeInfo;
 class UnitConverter;
-class XML;
 
 }
 

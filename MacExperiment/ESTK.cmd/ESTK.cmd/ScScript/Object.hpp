@@ -1,23 +1,18 @@
-#ifndef __ScScript_InitTerm__
-#define __ScScript_InitTerm__
+#ifndef __ScScript_Object__
+#define __ScScript_Object__
 
 namespace ScScript {
 
- //
+  //
   // All of these signatures are guesswork!
   // Most are _known_ to be incorrect - they're placeholders until
   // they will be properly analyzed
   //
 
-class InitTerm {
+class Object {
 public:
-  static bool isInitialized();
-  static void exit();
-  static void init();
-  static void atExit(void (*)());
 };
-
+  
 };
 
 #endif
-

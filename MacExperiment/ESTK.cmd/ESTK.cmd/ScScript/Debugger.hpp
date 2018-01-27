@@ -1,5 +1,5 @@
-#ifndef __ScScript_InitTerm__
-#define __ScScript_InitTerm__
+#ifndef __ScScript_Debugger__
+#define __ScScript_Debugger__
 
 namespace ScScript {
 
@@ -9,12 +9,10 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class InitTerm {
-public:
-  static bool isInitialized();
-  static void exit();
-  static void init();
-  static void atExit(void (*)());
+class Debugger {
+private:
+	Debugger();
+	~Debugger();
 };
 
 };

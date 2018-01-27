@@ -4,6 +4,13 @@
 namespace ScCore {
 
 class InitTerm {
+
+  //
+  // All of these signatures are guesswork!
+  // Most are _known_ to be incorrect - they're placeholders until
+  // they will be properly analyzed
+  //
+
 public:
   static bool isInitialized();
   static void exit();

@@ -9,6 +9,12 @@
 
 #include "Tests/Tests_All.hpp"
 
+#include "ScScript/Engine.hpp"
+#include "ScScript/ParserAPI.hpp"
+#include "ScCore/String.hpp"
+#include "ScCore/FileSpec.hpp"
+#include "ScCore/File.hpp"
+
 void exitFunc() {
 	ESTK_N::Logger::logNote("exitFunc called");
 }
@@ -28,6 +34,13 @@ int main(int argc, const char * argv[]) {
   }
   
   std::cout << "ESTK.cmd started\n";
+  
+  const ScScript::Engine& e(ScScript::Engine::createEngine(ScScript::Engine::Default));
+  const ScCore::String& engineName(e.getName());
+  
+  
+  const ScCore::String s1("alert('x');");
+  const ScCore::String s2("");
   
   ScScript::InitTerm::exit();
   ScCore::InitTerm::exit();

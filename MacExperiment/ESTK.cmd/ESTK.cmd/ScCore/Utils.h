@@ -7,8 +7,9 @@ extern "C" {
 
   //
   // All of these signatures are guesswork!
+  // They're placeholders until they will be properly analyzed
   //
-  
+
   void*      memchr16(const void *, int, size_t);
   char16_t*  strchr16(const char16_t*, int);
   int        strcmp16(const char16_t*, const char16_t*);

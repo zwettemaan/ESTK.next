@@ -1,5 +1,5 @@
-#ifndef __ScScript_InitTerm__
-#define __ScScript_InitTerm__
+#ifndef __ScScript_ProfilerData__
+#define __ScScript_ProfilerData__
 
 namespace ScScript {
 
@@ -9,12 +9,10 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class InitTerm {
+class ProfilerData {
 public:
-  static bool isInitialized();
-  static void exit();
-  static void init();
-  static void atExit(void (*)());
+	ProfilerData();
+	~ProfilerData();
 };
 
 };
