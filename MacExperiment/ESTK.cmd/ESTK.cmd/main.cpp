@@ -14,6 +14,12 @@
 #include "ScCore/String.hpp"
 #include "ScCore/FileSpec.hpp"
 #include "ScCore/File.hpp"
+#include "ScCore/CocoaUtils.hpp"
+#include "ESTK_N/CocoaUtilsWrapper.hpp"
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <objc/objc.h>
+#include <objc/objc-runtime.h>
 
 void exitFunc() {
 	ESTK_N::Logger::logNote("exitFunc called");
@@ -33,14 +39,16 @@ int main(int argc, const char * argv[]) {
     ESTK_N::Logger::logError("main: some startup tests failed");
   }
   
-  std::cout << "ESTK.cmd started\n";
+  ESTK_N::Logger::logMessage("ESTK.cmd started");
   
   const ScScript::Engine& e(ScScript::Engine::createEngine(ScScript::Engine::Default));
   const ScCore::String& engineName(e.getName());
+  std::u16string u16EngineName;
+  ESTK_N::scCoreString_to_u16string(u16EngineName, engineName, false);
   
-  
-  const ScCore::String s1("alert('x');");
-  const ScCore::String s2("");
+  ESTK_N::Logger::logMessage("Engine Name: '", Continued);
+  ESTK_N::Logger::logMessage(u16EngineName, Continued);
+  ESTK_N::Logger::logMessage("'");
   
   ScScript::InitTerm::exit();
   ScCore::InitTerm::exit();

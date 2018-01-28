@@ -14,7 +14,7 @@ bool test_memchr16() {
   
     try {
     
-      std::u16string s1 = ESTK_N::stringTou16string(std::string("Hello"));
+      std::u16string s1 = ESTK_N::utf8_to_u16string(std::string("Hello"));
       
       const char16_t* s1Begin = s1.c_str();
       const char16_t* letterPtr = (const char16_t*) ScCore::memchr16(s1.c_str(), 'l', s1.length());

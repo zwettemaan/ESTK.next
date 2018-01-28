@@ -3,6 +3,8 @@
 
 #include <string>
 
+#define Continued ESTK_N::Logger::eRawMessage
+
 namespace ESTK_N {
 
 enum LogLevel {
@@ -20,6 +22,13 @@ class Logger {
   
 public:
 
+  enum MessageWrap {
+    eRawMessage,
+    eWithEOL,
+    eWithLevelPrefix,
+    eWithLevelPrefixAndEOL
+  };
+  
   static void setLogLevel(LogLevel in_logLevel) {
     fLogLevel = in_logLevel;
   }
@@ -28,18 +37,67 @@ public:
     return fLogLevel;
   }
   
-  static void logMessage(LogLevel level, const char* msg);
-  static void logMessage(LogLevel level, const std::string& msg);
-  static void logFatal(const std::string& msg);
-  static void logFatal(const char* msg);
-  static void logError(const std::string& msg);
-  static void logError(const char* msg);
-  static void logWarn(const std::string& msg);
-  static void logWarn(const char* msg);
-  static void logNote(const std::string& msg);
-  static void logNote(const char* msg);
-  static void logTrace(const std::string& msg);
-  static void logTrace(const char* msg);
+  typedef const char* cstr;
+  
+  // Use 'Continued' to suppress new line
+  static void logMessage(const cstr& msg, MessageWrap messageWrap = eWithEOL);
+  static void logMessage(const std::string& msg, MessageWrap messageWrap = eWithEOL);
+  static void logMessage(const std::u16string& msg, MessageWrap messageWrap = eWithEOL);
+  
+  template<typename T>
+  static void logMessage(LogLevel level, T msg, MessageWrap messageWrap = eWithLevelPrefixAndEOL) {
+  
+    if (level == Off || level > fLogLevel) {
+      return;
+    }
+    
+    if (messageWrap == eWithLevelPrefix || messageWrap == eWithLevelPrefixAndEOL) {
+      switch (level) {
+      default:
+          break;
+      case Fatal:
+          logMessage("FATAL: ", messageWrap);
+          break;
+      case Error:
+          logMessage("ERROR: ", messageWrap);
+          break;
+      case Warn:
+          logMessage("WARN : ", messageWrap);
+          break;
+      case Note:
+          logMessage("NOTE : ", messageWrap);
+          break;
+      case Trace:
+          logMessage("TRACE: ", messageWrap);
+          break;
+      }
+    }
+  }
+  
+  template<typename T>
+  static void logFatal(T msg, MessageWrap messageWrap = eWithLevelPrefixAndEOL) {
+      logMessage(Fatal, msg);
+  };
+
+  template<typename T>
+  static void logError(T msg, MessageWrap messageWrap = eWithLevelPrefixAndEOL) {
+      logMessage(Error, msg);
+  };
+
+  template<typename T>
+  static void logWarn(T msg, MessageWrap messageWrap = eWithLevelPrefixAndEOL) {
+      logMessage(Warn, msg);
+  };
+
+  template<typename T>
+  static void logNote(T msg, MessageWrap messageWrap = eWithLevelPrefixAndEOL) {
+      logMessage(Note, msg);
+  };
+
+  template<typename T>
+  static void logTrace(T msg, MessageWrap messageWrap = eWithLevelPrefixAndEOL) {
+      logMessage(Trace, msg);
+  };
 };
 
 }
