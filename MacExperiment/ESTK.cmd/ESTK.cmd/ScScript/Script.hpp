@@ -13,7 +13,7 @@ class Script {
 
 private:
 	
-  void ~Script();
+  ~Script();
 
 public:
 

@@ -28,8 +28,9 @@ private:
 
 public:
 
+  // Probably persistent vs nonpersistent or private vs non-private?
   enum Type {
-    Default // Made up name
+    DunnoYet, // Made up name,
   };
 
   void clearError();
@@ -39,7 +40,7 @@ public:
   void gcAll();
   void getAll(ScCore::TSimpleArray<Engine>&);
   const Callback& getCallback() const;
-  static Engine& getCurrent();
+  static Engine* getCurrent();
   const ScCore::Dictionary& getDictionary() const;
   const ScCore::Error& getError() const;
   const ScCore::ErrorInfo& getErrorInfo() const;

@@ -20,7 +20,7 @@ void utf8string_to_ScCoreString(ScCore::String& out_scCoreString, const char* in
 
     const NSString* nsString = utf8_to_NSString(in_string);
     if (nsString == nullptr) {
-      Logger::logError("utf8string_to_ScCoreString: utf8_to_NSString returns nullptr");
+      Logger::error("utf8string_to_ScCoreString: utf8_to_NSString returns nullptr");
       break;
     }
     
@@ -43,7 +43,7 @@ void u16string_to_ScCoreString(ScCore::String& out_scCoreString, const std::u16s
 
     const NSString* temp = utf16_to_NSString((unichar*) in_u16string.c_str(), in_u16string.length());
     if (temp == nullptr) {
-      Logger::logError("u16string_to_ScCoreString: utf16_to_NSString returns nullptr");
+      Logger::error("u16string_to_ScCoreString: utf16_to_NSString returns nullptr");
       break;
     }
    
@@ -62,7 +62,7 @@ void scCoreString_to_u16string(std::u16string& out_u16string, const ScCore::Stri
     const NSString* temp = ScCore::CocoaUtils::toNSString(in_scCoreString, dontKnowYet);
     const size_t length = nsString_length(temp);
    
-    out_u16string.resize(length + 1, '\0');
+    out_u16string.resize(length);
     nsString_to_UTF16(temp, (unichar*) out_u16string.c_str(), length);
    
     nsString_release(temp);

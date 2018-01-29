@@ -48,16 +48,16 @@ public:
   const String& getResolvedPath() const;
   const String& getRootName() const;
   void getType() const;
-  void initData();
+  static void initData();
   FileSpec& operator=(FileSpec const&);
   bool operator==(FileSpec const&) const;
-  void releaseData();
+  static void releaseData();
   FileSpec& resolve(FileSpec&) const;
   void setAttributes(short);
   void setFSRef(FSRef const&);
   void setFSRef(FSRef const&, String const&);
   void setPath(String const&, bool);
-  static const String& tempName();
+  const String& tempName();
 };
   
 };

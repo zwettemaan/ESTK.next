@@ -15,22 +15,28 @@ bool test_stringCreation() {
   
     try {
       ScCore::String* s = new ScCore::String("Hello");
-      size_t l = s->find("lo",0,false);
-      if (l != 3) {
-        ESTK_N::Logger::logError("test_stringCreation: failed. Position should be 3");
+      size_t subStrPos = s->find("lo",0,false);
+      if (subStrPos == 3) {
+        Logger::trace("test_stringCreation: substring search works OK");
+      }
+      else {
+        Logger::error("test_stringCreation: failed. Position should be 3");
         break;
       }
       
       std::string compareString;
       ESTK_N::scCoreString_to_utf8string(compareString, *s, false);
-      if (compareString != "Hello") {
-        ESTK_N::Logger::logError("test_stringCreation: failed. string should be 'Hello'");
+      if (compareString == "Hello") {
+        Logger::trace("test_stringCreation: string roundtrip works OK");
+      }
+      else {
+        Logger::error("test_stringCreation: failed. string should be 'Hello'");
         break;
       }
       
     }
     catch (...) {
-        ESTK_N::Logger::logError("test_stringCreation: failed. Throws an exception");
+        Logger::error("test_stringCreation: failed. Throws an exception");
         break;
     }
   }

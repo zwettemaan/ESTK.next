@@ -8,6 +8,8 @@
 
 namespace ESTK_N {
 
+// Launch InDesign CC 2018 via ExtendScript core
+
 #define TEST_APP_PATH "/Applications/Adobe InDesign CC 2018/Adobe Indesign CC 2018.app"
 
 bool test_runningAFile() {
@@ -20,32 +22,32 @@ bool test_runningAFile() {
     
       ScCore::String* s = new ScCore::String(TEST_APP_PATH);
       if (s == nullptr) {
-        ESTK_N::Logger::logError("test_runningAFile: failed. No String");
+        Logger::error("test_runningAFile: failed. No String");
         break;
       }
       
       ScCore::FileSpec* fs = new ScCore::FileSpec(*s, false);
       if (fs == nullptr) {
-        ESTK_N::Logger::logError("test_runningAFile: failed. No FileSpec");
+        Logger::error("test_runningAFile: failed. No FileSpec");
         break;
       }
       
       ScCore::File* f = new ScCore::File(*fs);
       if (f == nullptr) {
-        ESTK_N::Logger::logError("test_runningAFile: failed. No File");
+        Logger::error("test_runningAFile: failed. No File");
         break;
       }
 
-/*
-      // This simply the same as double-clicking the file.
-      if (! f->execute()) {
-        ESTK_N::Logger::logError("test_runningAFile: failed to execute");
-        break;
-      }
-*/
+      // This is the same as double-clicking the file.
+      f->execute();
+
+      Logger::note("test_runningAFile: the file '", LogMessageStart);
+      Logger::note(TEST_APP_PATH, LogMessageContinued);
+      Logger::note("' should now launch", LogMessageLineEnd);
+
     }
     catch (...) {
-        ESTK_N::Logger::logError("test_runningAFile: failed. Throws an exception");
+        Logger::error("test_runningAFile: failed. Throws an exception");
         break;
     }
   }

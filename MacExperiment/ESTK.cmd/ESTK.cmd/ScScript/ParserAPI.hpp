@@ -16,12 +16,13 @@ namespace ScScript {
   //
 
 class ParserAPI {
-private:
-  ParserAPI(Engine&);
+public:
 
+  ParserAPI(Engine&);
+  
   Script& decompile(ScopeNode const&) const;
   void enablePreProcessor(bool);
-  Script& getIncludePath() const;
+  ScCore::String& getIncludePath() const;
   Script& parse(ScCore::String const&) const;
   void setIncludePath(ScCore::String const&) const;
 };

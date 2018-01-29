@@ -22,7 +22,7 @@ public:
   void close();
   void copyTo(FileSpec const&) const;
   void eof() const;
-  bool execute();
+  void execute();
   void flush();
   void getContent(String&, int);
   String::CRLFEncoding getEncoding() const;

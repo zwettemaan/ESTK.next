@@ -17,29 +17,39 @@ bool test_creatingAFile() {
   
     try {
     
-      const ScCore::String s1("Some content for the file");      
+      const ScCore::String s1("Some content for the file");
       const ScCore::String path(TEST_FILE_PATH);
       const ScCore::String mode("w");
-      const ScCore::FileSpec fs(path, false);
-
-      ScCore::File* f(new ScCore::File(fs));
+      
+    // This is all crashy.
+      ScCore::FileSpec fs(path, false);
+      
+      ScCore::File* f = new ScCore::File(fs);
       
       f->open(mode, 0, 0);
       f->write(s1,false);
       f->close();
 
-      /*
-      * Does not work:For some reason ScCore::File f(fs) causes a crash
+      Logger::trace("test_creatingAFile: there should now be a file at '", LogMessageStart);
+      Logger::trace(TEST_FILE_PATH, LogMessageContinued);
+      Logger::trace("'", LogMessageLineEnd);
       
+      Logger::note("test_creatingAFile: succeeded");
+      
+      /*
+      * This alternate form does not work:For some reason ScCore::File f(fs) causes a crash
+
       ScCore::File f(fs);
       
       f.open(mode, 0, 0);
       f.write(s1,false);
       f.close();
+
+
       */
     }
     catch (...) {
-        ESTK_N::Logger::logError("test_creatingAFile: failed. Throws an exception");
+        Logger::error("test_creatingAFile: failed. Throws an exception");
         break;
     }
   }

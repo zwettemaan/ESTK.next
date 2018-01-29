@@ -16,27 +16,34 @@ namespace ScScript {
   //
 
 class ScriptContainer {
-private:
-
+  
+public:
   ScriptContainer();
   ScriptContainer(bool);
   ~ScriptContainer();
   
-public:
+  // add scripts to container
   void add(ScriptContainer const&, bool);
-  static ScriptContainer& compile(ScCore::FileSpec const&, bool, bool (*)(ScCore::FileSpec const&));
-  static ScriptContainer& compile(ScCore::String const&, ScCore::String const&);
+  void compile(ScCore::FileSpec const&, bool, bool (*)(ScCore::FileSpec const&));
+  void compile(ScCore::String const&, ScCore::String const&);
+  
+  // empty container
   void erase();
+  
   void errorAlert() const;
   void errorAlert(ScCore::Error const&);
   void errorMessage() const;
   void errorMessage(ScCore::Error const&);
-  void execute(Engine&, int);
-  void getError() const;
-  Script& getScript(int) const;
-  void insert(Script&, int);
+  
+  void execute(Engine&, int scriptIdx);
+  
+  ScCore::Error& getError() const;
+  
+  Script& getScript(int scriptIdx) const;
+  void insert(Script&, int afterScriptIdx);
   void isContinueOnError() const;
-  void length() const;
+  size_t length() const; // number of scripts added in
+  
   void load(ScScript::Engine&);
 };
   
