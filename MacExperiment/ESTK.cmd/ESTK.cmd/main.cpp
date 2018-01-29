@@ -9,6 +9,7 @@
 #include "ScCore/FileSpec.hpp"
 #include "ScCore/File.hpp"
 #include "ScCore/DebugAlert.hpp"
+#include "ScCore/Dialogs.hpp"
 
 #include "ScScript/InitTerm.hpp"
 #include "ScScript/Engine.hpp"
@@ -48,14 +49,14 @@ int main(int argc, const char * argv[]) {
   ESTK_N::Logger::message("ESTK.cmd started");
   
   ScScript::ScriptContainer* sc = new ScScript::ScriptContainer();
-  sc->compile(ScCore::String("$.writeln('hello');"), ScCore::String(""));
+  sc->compile(ScCore::String("'abc';"), ScCore::String("$.writeln('hello');"));
   int scriptNum = 0;
   
-  ScCore::DebugAlert("hallo","world",1);
   
   ScScript::Script& s1(sc->getScript(0));
   
   ScScript::Engine& e(ScScript::Engine::createEngine(ScScript::Engine::DunnoYet));
+  
   /*
   ScScript::ParserAPI* papi = new ScScript::ParserAPI(e);
   papi->setIncludePath("~/Desktop");

@@ -12,6 +12,7 @@
 		0151BD1E201BE96900CD42FD /* Test_StringCreation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0151BD1C201BE96900CD42FD /* Test_StringCreation.cpp */; };
 		01A6B8DE201E75C2003669A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A6B8DD201E75BE003669A5 /* Cocoa.framework */; };
 		01A6B8E2201E90ED003669A5 /* Test_Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01A6B8E1201E90ED003669A5 /* Test_Engine.cpp */; };
+		01A6B8E6201EC616003669A5 /* Test_dialogs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01A6B8E4201EC616003669A5 /* Test_dialogs.cpp */; };
 		01B8494F201BB9A600CE8B40 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01B8494E201BB9A600CE8B40 /* main.cpp */; };
 		01CE7532201BF89A00BB9DE2 /* Test_RunningAFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01CE7531201BF89900BB9DE2 /* Test_RunningAFile.cpp */; };
 		01CE7567201C21C500BB9DE2 /* Test_FileCreation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01CE7566201C21C500BB9DE2 /* Test_FileCreation.cpp */; };
@@ -50,6 +51,9 @@
 		01A6B8E0201E90ED003669A5 /* Test_Engine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_Engine.hpp; sourceTree = "<group>"; };
 		01A6B8E1201E90ED003669A5 /* Test_Engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test_Engine.cpp; sourceTree = "<group>"; };
 		01A6B8E3201EC1B8003669A5 /* DebugAlert.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DebugAlert.hpp; sourceTree = "<group>"; };
+		01A6B8E4201EC616003669A5 /* Test_dialogs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test_dialogs.cpp; sourceTree = "<group>"; };
+		01A6B8E5201EC616003669A5 /* Test_dialogs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_dialogs.hpp; sourceTree = "<group>"; };
+		01A6B8E7201EC674003669A5 /* Dialogs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Dialogs.hpp; sourceTree = "<group>"; };
 		01B8494B201BB9A600CE8B40 /* ESTK.cmd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ESTK.cmd; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B8494E201BB9A600CE8B40 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		01CE7530201BF89900BB9DE2 /* Test_RunningAFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_RunningAFile.hpp; sourceTree = "<group>"; };
@@ -163,6 +167,7 @@
 				01CE7550201C022900BB9DE2 /* Array.hpp */,
 				01CE756C201C98F000BB9DE2 /* CocoaUtils.hpp */,
 				01A6B8E3201EC1B8003669A5 /* DebugAlert.hpp */,
+				01A6B8E7201EC674003669A5 /* Dialogs.hpp */,
 				01CE7551201C022900BB9DE2 /* Dictionary.hpp */,
 				01CE756B201C262E00BB9DE2 /* Encoder.hpp */,
 				01CE7555201C022900BB9DE2 /* Error.hpp */,
@@ -206,6 +211,8 @@
 			children = (
 				01FB7C01201BDD560077008C /* Tests_All.cpp */,
 				01FB7C02201BDD560077008C /* Tests_All.hpp */,
+				01A6B8E4201EC616003669A5 /* Test_dialogs.cpp */,
+				01A6B8E5201EC616003669A5 /* Test_dialogs.hpp */,
 				01A6B8E1201E90ED003669A5 /* Test_Engine.cpp */,
 				01A6B8E0201E90ED003669A5 /* Test_Engine.hpp */,
 				01CE7566201C21C500BB9DE2 /* Test_FileCreation.cpp */,
@@ -280,6 +287,7 @@
 				01B8494F201BB9A600CE8B40 /* main.cpp in Sources */,
 				01CE7532201BF89A00BB9DE2 /* Test_RunningAFile.cpp in Sources */,
 				01A6B8E2201E90ED003669A5 /* Test_Engine.cpp in Sources */,
+				01A6B8E6201EC616003669A5 /* Test_dialogs.cpp in Sources */,
 				01CE7567201C21C500BB9DE2 /* Test_FileCreation.cpp in Sources */,
 				01282E55201D27B40008E7F5 /* CocoaUtilsWrapper.cpp in Sources */,
 				01FB7C03201BDD560077008C /* Tests_All.cpp in Sources */,

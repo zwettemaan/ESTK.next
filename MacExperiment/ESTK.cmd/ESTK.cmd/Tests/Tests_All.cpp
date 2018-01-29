@@ -6,6 +6,7 @@
 #include "Test_RunningAFile.hpp"
 #include "Test_FileCreation.hpp"
 #include "Test_Engine.hpp"
+#include "Test_dialogs.hpp"
 
 #include "../ESTK_N/Logger.hpp"
 
@@ -26,6 +27,7 @@ bool test_all() {
   retVal = test_runningAFile() || retVal;
   //retVal = test_creatingAFile() || retVal;
   retVal = test_engineInteraction() || retVal;
+  retVal = test_dialogs() || retVal;
   
 #endif
 
