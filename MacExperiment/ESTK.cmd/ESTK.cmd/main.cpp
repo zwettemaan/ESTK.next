@@ -13,11 +13,16 @@
 
 #include "ScScript/InitTerm.hpp"
 #include "ScScript/Engine.hpp"
+#include "ScScript/Node.hpp"
+#include "ScScript/ScopeNode.hpp"
 #include "ScScript/Script.hpp"
 #include "ScScript/ScriptContainer.hpp"
 #include "ScScript/ParserAPI.hpp"
 
+#include "ESTK_N/Callback.hpp"
+
 #include "Tests/Tests_All.hpp"
+#include "Debug/VerifyObject.hpp"
 
 #if MACINTOSH
 #include "ScCore/CocoaUtils.hpp"
@@ -49,26 +54,41 @@ int main(int argc, const char * argv[]) {
   ESTK_N::Logger::message("ESTK.cmd started");
   
   ScScript::ScriptContainer* sc = new ScScript::ScriptContainer();
+  ESTK_N::VerifyObject(*sc);
+  
   sc->compile(ScCore::String("'abc';"), ScCore::String("$.writeln('hello');"));
   int scriptNum = 0;
-  
-  
+
   ScScript::Script& s1(sc->getScript(0));
   
   ScScript::Engine& e(ScScript::Engine::createEngine(ScScript::Engine::DunnoYet));
+  //ESTK_N::VerifyObject(e);
   
-  /*
-  ScScript::ParserAPI* papi = new ScScript::ParserAPI(e);
-  papi->setIncludePath("~/Desktop");
-  ScCore::String& ip = papi->getIncludePath();
-  ESTK_N::Logger::message(ip);
-  //ScScript::Script& s2 = papi->parse(ScCore::String("$.writeln('hello');"));
+  //ScScript::Callback* oldCallback = e.getCallback();
   
-  //sc->insert(s2, 0);
-*/
-  sc->load(e);
+  //ESTK_N::Callback* callback = new ESTK_N::Callback(oldCallback);
+  //e.setCallback(callback);
+  
   sc->execute(e, 0);
   
+  ScScript::ParserAPI* papi = new ScScript::ParserAPI(e);
+  ESTK_N::VerifyObject(*papi);
+  
+  ScCore::String& ip = papi->getIncludePath();
+  ESTK_N::VerifyObject(ip);
+
+  papi->setIncludePath(ScCore::String("~/Desktop"));
+
+  ESTK_N::Logger::message(ip);
+  ScScript::Node& s2 = papi->parse(ScCore::String("$.writeln('hello');"));
+  
+  //bool b = s2.dump(e, 0);
+  //if (s3 != nullptr) {
+    //ESTK_N::Logger::message(*s3);
+  //}
+  
+  //sc->load(e);
+ 
   ScScript::InitTerm::exit();
 
   ScCore::InitTerm::exit();

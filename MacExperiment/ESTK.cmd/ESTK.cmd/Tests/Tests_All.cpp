@@ -27,7 +27,7 @@ bool test_all() {
   retVal = test_runningAFile() || retVal;
   //retVal = test_creatingAFile() || retVal;
   retVal = test_engineInteraction() || retVal;
-  retVal = test_dialogs() || retVal;
+  //retVal = test_dialogs() || retVal;
   
 #endif
 

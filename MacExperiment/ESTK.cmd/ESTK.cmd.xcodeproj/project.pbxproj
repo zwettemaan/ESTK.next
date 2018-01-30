@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		01282E52201D274F0008E7F5 /* CocoaUtilsWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 01282E51201D274F0008E7F5 /* CocoaUtilsWrapper.m */; };
 		01282E55201D27B40008E7F5 /* CocoaUtilsWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01282E53201D27B40008E7F5 /* CocoaUtilsWrapper.cpp */; };
+		014B0064201FEC420063C100 /* Callback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 014B0062201FEC420063C100 /* Callback.cpp */; };
 		0151BD1E201BE96900CD42FD /* Test_StringCreation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0151BD1C201BE96900CD42FD /* Test_StringCreation.cpp */; };
+		016A5E51201F288700FD271D /* VerifyObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 016A5E4F201F288700FD271D /* VerifyObject.cpp */; };
 		01A6B8DE201E75C2003669A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A6B8DD201E75BE003669A5 /* Cocoa.framework */; };
 		01A6B8E2201E90ED003669A5 /* Test_Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01A6B8E1201E90ED003669A5 /* Test_Engine.cpp */; };
 		01A6B8E6201EC616003669A5 /* Test_dialogs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01A6B8E4201EC616003669A5 /* Test_dialogs.cpp */; };
@@ -44,8 +46,15 @@
 		01282E51201D274F0008E7F5 /* CocoaUtilsWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CocoaUtilsWrapper.m; sourceTree = "<group>"; };
 		01282E53201D27B40008E7F5 /* CocoaUtilsWrapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CocoaUtilsWrapper.cpp; sourceTree = "<group>"; };
 		01282E54201D27B40008E7F5 /* CocoaUtilsWrapper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CocoaUtilsWrapper.hpp; sourceTree = "<group>"; };
+		014B0061201FE94F0063C100 /* Callback.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Callback.hpp; sourceTree = "<group>"; };
+		014B0062201FEC420063C100 /* Callback.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Callback.cpp; sourceTree = "<group>"; };
+		014B0063201FEC420063C100 /* Callback.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Callback.hpp; sourceTree = "<group>"; };
 		0151BD1C201BE96900CD42FD /* Test_StringCreation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test_StringCreation.cpp; sourceTree = "<group>"; };
 		0151BD1D201BE96900CD42FD /* Test_StringCreation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_StringCreation.hpp; sourceTree = "<group>"; };
+		016A5E4C201EE14100FD271D /* ScopeNode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ScopeNode.hpp; sourceTree = "<group>"; };
+		016A5E4D201F276300FD271D /* Node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Node.hpp; sourceTree = "<group>"; };
+		016A5E4F201F288700FD271D /* VerifyObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VerifyObject.cpp; sourceTree = "<group>"; };
+		016A5E50201F288700FD271D /* VerifyObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VerifyObject.hpp; sourceTree = "<group>"; };
 		01A6B8DD201E75BE003669A5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		01A6B8DF201E90B9003669A5 /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		01A6B8E0201E90ED003669A5 /* Test_Engine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_Engine.hpp; sourceTree = "<group>"; };
@@ -115,6 +124,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		016A5E4E201F286C00FD271D /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				016A5E4F201F288700FD271D /* VerifyObject.cpp */,
+				016A5E50201F288700FD271D /* VerifyObject.hpp */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
 		01B84942201BB9A600CE8B40 = {
 			isa = PBXGroup;
 			children = (
@@ -137,6 +155,7 @@
 		01B8494D201BB9A600CE8B40 /* ESTK.cmd */ = {
 			isa = PBXGroup;
 			children = (
+				016A5E4E201F286C00FD271D /* Debug */,
 				01FB7BFC201BDCCA0077008C /* Tests */,
 				01FB7BF6201BDC3E0077008C /* ScScript */,
 				01FB7BF5201BDC380077008C /* ScCore */,
@@ -157,6 +176,8 @@
 				01282E51201D274F0008E7F5 /* CocoaUtilsWrapper.m */,
 				01282E53201D27B40008E7F5 /* CocoaUtilsWrapper.cpp */,
 				01282E54201D27B40008E7F5 /* CocoaUtilsWrapper.hpp */,
+				014B0062201FEC420063C100 /* Callback.cpp */,
+				014B0063201FEC420063C100 /* Callback.hpp */,
 			);
 			path = ESTK_N;
 			sourceTree = "<group>";
@@ -192,14 +213,17 @@
 			isa = PBXGroup;
 			children = (
 				01CE755B201C023D00BB9DE2 /* BreakpointInfo.hpp */,
+				014B0061201FE94F0063C100 /* Callback.hpp */,
 				01CE755C201C023D00BB9DE2 /* DebugAPI.hpp */,
 				01CE7560201C023D00BB9DE2 /* Debugger.hpp */,
 				01CE755D201C023D00BB9DE2 /* Engine.hpp */,
 				01CE755E201C023D00BB9DE2 /* InitTerm.hpp */,
+				016A5E4D201F276300FD271D /* Node.hpp */,
 				01CE7568201C248F00BB9DE2 /* Object.hpp */,
 				01CE755F201C023D00BB9DE2 /* OpaqueTypes.hpp */,
 				01CE7563201C193F00BB9DE2 /* ParserAPI.hpp */,
 				01CE7561201C023D00BB9DE2 /* ProfilerData.hpp */,
+				016A5E4C201EE14100FD271D /* ScopeNode.hpp */,
 				01CE7564201C1A9F00BB9DE2 /* Script.hpp */,
 				01CE7562201C0B3700BB9DE2 /* ScriptContainer.hpp */,
 			);
@@ -285,9 +309,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				01B8494F201BB9A600CE8B40 /* main.cpp in Sources */,
+				016A5E51201F288700FD271D /* VerifyObject.cpp in Sources */,
 				01CE7532201BF89A00BB9DE2 /* Test_RunningAFile.cpp in Sources */,
 				01A6B8E2201E90ED003669A5 /* Test_Engine.cpp in Sources */,
 				01A6B8E6201EC616003669A5 /* Test_dialogs.cpp in Sources */,
+				014B0064201FEC420063C100 /* Callback.cpp in Sources */,
 				01CE7567201C21C500BB9DE2 /* Test_FileCreation.cpp in Sources */,
 				01282E55201D27B40008E7F5 /* CocoaUtilsWrapper.cpp in Sources */,
 				01FB7C03201BDD560077008C /* Tests_All.cpp in Sources */,

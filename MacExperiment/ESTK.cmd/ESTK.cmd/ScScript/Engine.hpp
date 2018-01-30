@@ -13,7 +13,7 @@ namespace ScScript {
 
  //
   // All of these signatures are guesswork!
-  // Most are _known_ to be incorrect - they're placeholders until
+  // Many are bound to be incorrect - they're placeholders until
   // they will be properly analyzed
   //
 class Callback;
@@ -39,7 +39,7 @@ public:
   static Engine& findEngine(ScCore::String const&);
   void gcAll();
   void getAll(ScCore::TSimpleArray<Engine>&);
-  const Callback& getCallback() const;
+  Callback* getCallback() const;
   static Engine* getCurrent();
   const ScCore::Dictionary& getDictionary() const;
   const ScCore::Error& getError() const;
