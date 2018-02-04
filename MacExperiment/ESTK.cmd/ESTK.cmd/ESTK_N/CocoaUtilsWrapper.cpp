@@ -24,7 +24,7 @@ void utf8string_to_ScCoreString(ScCore::String& out_scCoreString, const char* in
       break;
     }
     
-    out_scCoreString = ScCore::CocoaUtils::fromNSString(nsString);
+    out_scCoreString = *ScCore::CocoaUtils::fromNSString(nsString);
 
   }
   while (false);
@@ -47,7 +47,7 @@ void u16string_to_ScCoreString(ScCore::String& out_scCoreString, const std::u16s
       break;
     }
    
-    out_scCoreString = ScCore::CocoaUtils::fromNSString(temp);
+    std::auto_ptr<ScCore::String> out_scCoreString(ScCore::CocoaUtils::fromNSString(temp));
    
     nsString_release(temp);
   }

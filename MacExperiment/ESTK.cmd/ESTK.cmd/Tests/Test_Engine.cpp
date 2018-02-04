@@ -15,20 +15,20 @@ bool test_engineInteraction() {
   
     try {
     
-      ScScript::Engine& e(ScScript::Engine::createEngine(ScScript::Engine::DunnoYet));
+      ScScript::Engine* e = ScScript::Engine::createEngine(ScScript::Engine::DunnoYet);
 
       Logger::note("test_engineInteraction: Initial Engine Name: '", LogMessageStart);
-      Logger::note(e.getName(), LogMessageContinued);
+      Logger::note(e->getName(), LogMessageContinued);
       Logger::note("'", LogMessageLineEnd);
       
       const ScCore::String newEngineName("myEngine");
-      e.setName(newEngineName);
+      e->setName(newEngineName);
       
       Logger::note("test_engineInteraction: New Engine Name: '", LogMessageStart);
-      Logger::note(e.getName(), LogMessageContinued);
+      Logger::note(*e->getName(), LogMessageContinued);
       Logger::note("'", LogMessageLineEnd);
       
-      if (e.getName() == newEngineName) {
+      if (*e->getName() == newEngineName) {
         Logger::note("test_engineInteraction: Correct engine name");
       }
       else {
@@ -39,7 +39,7 @@ bool test_engineInteraction() {
       //
       // returns nullptr
       //
-      ScScript::Engine* eCurrent(ScScript::Engine::getCurrent());
+      ScScript::ESContext* eCurrent = ScScript::Engine::getCurrent();
 
       retVal = true;
       Logger::note("test_engineInteraction: succeeded");

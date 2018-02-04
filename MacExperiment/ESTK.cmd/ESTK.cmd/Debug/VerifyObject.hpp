@@ -25,7 +25,7 @@ namespace  ESTK_N {
   std::string VerifyObject(T& in_t) {
     return VerifyObject_(in_t);
   }
-  
+
 }
 
 #endif /* VerifyObject_hpp */

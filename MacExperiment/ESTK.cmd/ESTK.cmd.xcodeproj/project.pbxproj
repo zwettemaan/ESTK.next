@@ -55,6 +55,7 @@
 		016A5E4D201F276300FD271D /* Node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Node.hpp; sourceTree = "<group>"; };
 		016A5E4F201F288700FD271D /* VerifyObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VerifyObject.cpp; sourceTree = "<group>"; };
 		016A5E50201F288700FD271D /* VerifyObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VerifyObject.hpp; sourceTree = "<group>"; };
+		018417FB2025850400F7E069 /* Preprocessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Preprocessor.hpp; sourceTree = "<group>"; };
 		01A6B8DD201E75BE003669A5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		01A6B8DF201E90B9003669A5 /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		01A6B8E0201E90ED003669A5 /* Test_Engine.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_Engine.hpp; sourceTree = "<group>"; };
@@ -157,8 +158,8 @@
 			children = (
 				016A5E4E201F286C00FD271D /* Debug */,
 				01FB7BFC201BDCCA0077008C /* Tests */,
-				01FB7BF6201BDC3E0077008C /* ScScript */,
 				01FB7BF5201BDC380077008C /* ScCore */,
+				01FB7BF6201BDC3E0077008C /* ScScript */,
 				01FB7BF4201BDC020077008C /* ESTK_N */,
 				01B8494E201BB9A600CE8B40 /* main.cpp */,
 				01A6B8DF201E90B9003669A5 /* config.h */,
@@ -222,6 +223,7 @@
 				01CE7568201C248F00BB9DE2 /* Object.hpp */,
 				01CE755F201C023D00BB9DE2 /* OpaqueTypes.hpp */,
 				01CE7563201C193F00BB9DE2 /* ParserAPI.hpp */,
+				018417FB2025850400F7E069 /* Preprocessor.hpp */,
 				01CE7561201C023D00BB9DE2 /* ProfilerData.hpp */,
 				016A5E4C201EE14100FD271D /* ScopeNode.hpp */,
 				01CE7564201C1A9F00BB9DE2 /* Script.hpp */,

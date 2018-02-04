@@ -1,7 +1,7 @@
-#ifndef __ScScript_Script__
-#define __ScScript_Script__
+#ifndef __ScCore_Context__
+#define __ScCore_Context__
 
-namespace ScScript {
+namespace ScCore {
 
   //
   // All of these signatures are guesswork!
@@ -9,15 +9,12 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class Script {
-
+class Context {
 private:
-	
+  Context();
+  ~Context();
 public:
-
-  static bool isValidLine(Script const&, int);
-  ~Script();
-
+  static Context* get();
 };
   
 };

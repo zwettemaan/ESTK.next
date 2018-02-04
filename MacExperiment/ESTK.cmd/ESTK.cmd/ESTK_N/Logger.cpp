@@ -26,6 +26,12 @@ void Logger::message(const ScCore::String& msg, MessageWrap messageWrap) {
   Logger::message(msgWrapper, messageWrap);
 }
 
+void Logger::message(const ScCore::String* msg, MessageWrap messageWrap) {
+  std::string msgWrapper;
+  scCoreString_to_utf8string(msgWrapper, *msg, false);
+  Logger::message(msgWrapper, messageWrap);
+}
+
 void Logger::message(const std::u16string& msg, MessageWrap messageWrap) {
   std::string msgWrapper = u16string_to_utf8(msg);
   Logger::message(msgWrapper, messageWrap);

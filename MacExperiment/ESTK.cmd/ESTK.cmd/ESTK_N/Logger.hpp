@@ -109,7 +109,8 @@ public:
   static void message(const std::string& msg, const MessageWrap messageWrap = eWithEOL);
   static void message(const std::u16string& msg, const MessageWrap messageWrap = eWithEOL);
   static void message(const ScCore::String& msg, const MessageWrap messageWrap = eWithEOL);
-  
+  static void message(const ScCore::String* msg, const MessageWrap messageWrap = eWithEOL);
+
   template<typename T>
   static void fatal(T msg, const MessageWrap messageWrap = eWithLevelPrefixAndEOL) {
       logMessage(Fatal, messageWrap, msg);

@@ -59,28 +59,29 @@ int main(int argc, const char * argv[]) {
   sc->compile(ScCore::String("'abc';"), ScCore::String("$.writeln('hello');"));
   int scriptNum = 0;
 
-  ScScript::Script& s1(sc->getScript(0));
+  std::auto_ptr<ScScript::Script> s1(sc->getScript(0));
   
-  ScScript::Engine& e(ScScript::Engine::createEngine(ScScript::Engine::DunnoYet));
-  //ESTK_N::VerifyObject(e);
+  std::auto_ptr<ScScript::Engine> e(ScScript::Engine::createEngine(ScScript::Engine::DunnoYet));
+  sc->load(*e);
+  ESTK_N::VerifyObject(*e);
   
-  //ScScript::Callback* oldCallback = e.getCallback();
+  ScScript::Callback* oldCallback = e->getCallback();
   
-  //ESTK_N::Callback* callback = new ESTK_N::Callback(oldCallback);
-  //e.setCallback(callback);
+  ESTK_N::Callback* callback = new ESTK_N::Callback(oldCallback);
+  e->setCallback(callback);
   
-  sc->execute(e, 0);
+  sc->execute(*e, 0);
   
-  ScScript::ParserAPI* papi = new ScScript::ParserAPI(e);
+  std::auto_ptr<ScScript::ParserAPI> papi(new ScScript::ParserAPI(*e));
   ESTK_N::VerifyObject(*papi);
   
-  ScCore::String& ip = papi->getIncludePath();
-  ESTK_N::VerifyObject(ip);
+  std::auto_ptr<ScCore::String> ip(papi->getIncludePath());
+  ESTK_N::VerifyObject(*ip);
 
   papi->setIncludePath(ScCore::String("~/Desktop"));
 
-  ESTK_N::Logger::message(ip);
-  ScScript::Node& s2 = papi->parse(ScCore::String("$.writeln('hello');"));
+  ESTK_N::Logger::message(*ip);
+  std::auto_ptr<ScScript::Script> s2(papi->parse(ScCore::String("$.writeln('hello');")));
   
   //bool b = s2.dump(e, 0);
   //if (s3 != nullptr) {

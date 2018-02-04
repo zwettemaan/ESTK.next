@@ -22,9 +22,9 @@ std::string VerifyObject_(ScScript::BreakpointInfo& in_b) {
 }
 
 std::string VerifyObject_(ScScript::ParserAPI& in_p) {
-  ScCore::String& p = in_p.getIncludePath();
+  std::auto_ptr<ScCore::String> p(in_p.getIncludePath());
   std::string temp;
-  scCoreString_to_utf8string(temp, p, false);
+  scCoreString_to_utf8string(temp, *p, false);
   return temp;
 }
 
@@ -37,7 +37,7 @@ std::string VerifyObject_(ScScript::Engine& in_e) {
   int version = in_e.getVersion();
   
   std::string name;
-  scCoreString_to_utf8string(name, in_e.getName(), false);
+  scCoreString_to_utf8string(name, *in_e.getName(), false);
   
   std::stringstream stream;
   stream << std::hex << version;
@@ -49,9 +49,9 @@ std::string VerifyObject_(ScScript::Engine& in_e) {
 }
 
 std::string VerifyObject_(ScScript::Node& in_n) {
-  ScCore::String* s = in_n.toString();
+  std::auto_ptr<ScCore::String> s(in_n.toString());
   std::string temp;
-  if (s != nullptr) {
+  if (s.get() != nullptr) {
     scCoreString_to_utf8string(temp, *s, false);
   }
   return temp;
@@ -59,9 +59,9 @@ std::string VerifyObject_(ScScript::Node& in_n) {
 
 
 std::string VerifyObject_(ScScript::ScriptContainer& in_b) {
-  ScScript::Script& s = in_b.getScript(0);
+  std::auto_ptr<ScScript::Script> s(in_b.getScript(0));
   bool b = in_b.isContinueOnError();
-  int l = in_b.length();
+  size_t l = in_b.length();
   std::string temp;
   return temp;
 }

@@ -16,7 +16,7 @@ class String;
 class CocoaUtils {
 public:
 
-  static String& fromNSString(NSString const*);
+  static String* fromNSString(NSString const*);
   static NSString* toNSString(String const&, bool);
 
 };

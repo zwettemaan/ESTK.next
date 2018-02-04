@@ -1,5 +1,7 @@
-#ifndef __ScScript_Script__
-#define __ScScript_Script__
+#ifndef __ScScript_ESContext__
+#define __ScScript_ESContext__
+
+#include "../ScCore/Context.hpp"
 
 namespace ScScript {
 
@@ -9,15 +11,12 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class Script {
-
+class ESContext: public ScCore::Context {
 private:
-	
+	ESContext();
+	~ESContext();
 public:
-
-  static bool isValidLine(Script const&, int);
-  ~Script();
-
+	static ESContext* get();
 };
   
 };

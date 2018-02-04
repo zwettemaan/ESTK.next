@@ -18,8 +18,10 @@ namespace ScScript {
 class ScriptContainer {
   
 public:
+  // constructor creates an engine, type 0x10000?
   ScriptContainer();
   ScriptContainer(bool);
+  
   ~ScriptContainer();
   
   // add scripts to container
@@ -37,14 +39,14 @@ public:
   
   void execute(Engine&, int scriptIdx);
   
-  ScCore::Error& getError() const;
+  ScCore::Error* getError() const;
   
-  Script& getScript(int scriptIdx) const;
+  Script* getScript(int scriptIdx) const;
   void insert(Script&, int afterScriptIdx);
   bool isContinueOnError() const;
   size_t length() const; // number of scripts added in
   
-  void load(ScScript::Engine&);
+  void load(Engine& out_engine);
 };
   
 };

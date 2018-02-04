@@ -20,10 +20,10 @@ public:
 
   ParserAPI(Engine&);
   
-  Script& decompile(ScopeNode const&) const;
+  Script* decompile(ScopeNode const&) const;
   void enablePreProcessor(bool);
-  ScCore::String& getIncludePath() const;
-  Node& parse(ScCore::String const&) const;
+  ScCore::String* getIncludePath() const;
+  Script* parse(ScCore::String const&) const;
   void setIncludePath(ScCore::String const&) const;
 };
 

@@ -18,13 +18,11 @@ namespace ScScript {
   //
 class Callback;
 class RuntimeError;
+class ESContext;
 
 class Engine {
 
 private:
-
-  Engine();
-  ~Engine();
 
 public:
 
@@ -33,26 +31,30 @@ public:
     DunnoYet, // Made up name,
   };
 
+  Engine(); // creates a Broadcaster; gets an ESContext
+  ~Engine();
+
   void clearError();
-  void clone(Engine**) const;
-  static Engine& createEngine(Engine::Type);
-  static Engine& findEngine(ScCore::String const&);
-  void gcAll();
-  void getAll(ScCore::TSimpleArray<Engine>&);
+  void clone(Engine** targetEngine) const;
+  static Engine* createEngine(Engine::Type);
+  static Engine* findEngine(ScCore::String const&);
+  static void gcAll();
+  static void getAll(ScCore::TSimpleArray<Engine>&);
   Callback* getCallback() const;
-  static Engine* getCurrent();
-  const ScCore::Dictionary& getDictionary() const;
-  const ScCore::Error& getError() const;
-  const ScCore::ErrorInfo& getErrorInfo() const;
-  const ScCore::String& getID() const;
-  const ScCore::Localizer& getLocalizer() const;
-  const ScCore::String& getName() const;
-  int getVersion();
+  static ESContext* getCurrent();
+  virtual const ScCore::Dictionary* getDictionary() const; // stub, returns 0. For subclasses of Engine?
+  const ScCore::Error* getError() const;
+  const ScCore::ErrorInfo* getErrorInfo() const;
+  const ScCore::String* getID() const;
+  const ScCore::Localizer* getLocalizer() const;
+  const ScCore::String* getName() const;
+  // returns a constant; the engine version#?
+  int getVersion(); 
   void invalidateClassAll(ScCore::String const&);
   void restoreError(ScCore::Error const&);
   void setCallback(Callback*);
   void setDebugLevel(int);
-  void setDictionary(ScCore::Dictionary*);
+  virtual void setDictionary(ScCore::Dictionary*); // stub, do-nothing. For subclasses of Engine to override?
   void setError(int);
   void setError(int, ScCore::LiveObject const&, int, bool, int);
   void setError(int, ScCore::String const&, int, bool);
