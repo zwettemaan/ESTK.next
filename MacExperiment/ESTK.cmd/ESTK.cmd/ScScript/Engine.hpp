@@ -24,20 +24,19 @@ class Engine {
 
 private:
 
+  Engine(); // creates a Broadcaster; gets an ESContext
+  ~Engine();
+
 public:
 
   // Probably persistent vs nonpersistent or private vs non-private?
   enum Type {
     DunnoYet, // Made up name,
   };
-
-  Engine(); // creates a Broadcaster; gets an ESContext
-  ~Engine();
-
   void clearError();
   void clone(Engine** targetEngine) const;
   static Engine* createEngine(Engine::Type);
-  static Engine* findEngine(ScCore::String const&);
+  static Engine& findEngine(ScCore::String const&);
   static void gcAll();
   static void getAll(ScCore::TSimpleArray<Engine>&);
   Callback* getCallback() const;

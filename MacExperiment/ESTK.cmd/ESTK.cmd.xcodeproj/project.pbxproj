@@ -64,6 +64,8 @@
 		01A6B8E4201EC616003669A5 /* Test_dialogs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Test_dialogs.cpp; sourceTree = "<group>"; };
 		01A6B8E5201EC616003669A5 /* Test_dialogs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_dialogs.hpp; sourceTree = "<group>"; };
 		01A6B8E7201EC674003669A5 /* Dialogs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Dialogs.hpp; sourceTree = "<group>"; };
+		01B228E2202966BD002C8A12 /* Context.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Context.hpp; sourceTree = "<group>"; };
+		01B228E3202966DB002C8A12 /* ESContext.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ESContext.hpp; sourceTree = "<group>"; };
 		01B8494B201BB9A600CE8B40 /* ESTK.cmd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ESTK.cmd; sourceTree = BUILT_PRODUCTS_DIR; };
 		01B8494E201BB9A600CE8B40 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		01CE7530201BF89900BB9DE2 /* Test_RunningAFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Test_RunningAFile.hpp; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 		01FB7C02201BDD560077008C /* Tests_All.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tests_All.hpp; sourceTree = "<group>"; };
 		01FB7C04201BDF020077008C /* Logger.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Logger.hpp; sourceTree = "<group>"; };
 		01FB7C05201BDF020077008C /* Logger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Logger.cpp; sourceTree = "<group>"; };
+		01FED1602029607C00036D4C /* Callbacks.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Callbacks.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,7 +190,9 @@
 			isa = PBXGroup;
 			children = (
 				01CE7550201C022900BB9DE2 /* Array.hpp */,
+				01FED1602029607C00036D4C /* Callbacks.hpp */,
 				01CE756C201C98F000BB9DE2 /* CocoaUtils.hpp */,
+				01B228E2202966BD002C8A12 /* Context.hpp */,
 				01A6B8E3201EC1B8003669A5 /* DebugAlert.hpp */,
 				01A6B8E7201EC674003669A5 /* Dialogs.hpp */,
 				01CE7551201C022900BB9DE2 /* Dictionary.hpp */,
@@ -218,6 +223,7 @@
 				01CE755C201C023D00BB9DE2 /* DebugAPI.hpp */,
 				01CE7560201C023D00BB9DE2 /* Debugger.hpp */,
 				01CE755D201C023D00BB9DE2 /* Engine.hpp */,
+				01B228E3202966DB002C8A12 /* ESContext.hpp */,
 				01CE755E201C023D00BB9DE2 /* InitTerm.hpp */,
 				016A5E4D201F276300FD271D /* Node.hpp */,
 				01CE7568201C248F00BB9DE2 /* Object.hpp */,

@@ -28,7 +28,7 @@ std::string VerifyObject_(ScScript::ParserAPI& in_p) {
   return temp;
 }
 
-std::string VerifyObject_(ScScript::Script& in_s) {
+std::string VerifyObject_(const ScScript::Script& in_s) {
   bool b = ScScript::Script::isValidLine(in_s, 0);
   return std::string(b ? "isValidLine0" : "notIsValidLine0");
 }
@@ -59,7 +59,7 @@ std::string VerifyObject_(ScScript::Node& in_n) {
 
 
 std::string VerifyObject_(ScScript::ScriptContainer& in_b) {
-  std::auto_ptr<ScScript::Script> s(in_b.getScript(0));
+  const ScScript::Script* s(in_b.getScript(0));
   bool b = in_b.isContinueOnError();
   size_t l = in_b.length();
   std::string temp;

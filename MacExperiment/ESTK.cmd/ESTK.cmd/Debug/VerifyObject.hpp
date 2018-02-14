@@ -17,7 +17,7 @@ namespace  ESTK_N {
   std::string VerifyObject_(ScScript::BreakpointInfo& in_b);
   std::string VerifyObject_(ScScript::ParserAPI& in_p);
   std::string VerifyObject_(ScScript::Engine& in_e);
-  std::string VerifyObject_(ScScript::Script& in_s);
+  std::string VerifyObject_(const ScScript::Script& in_s);
   std::string VerifyObject_(ScScript::ScriptContainer& in_s);
   std::string VerifyObject_(ScScript::Node& in_n);
 

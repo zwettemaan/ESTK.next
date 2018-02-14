@@ -18,15 +18,15 @@ class Engine;
 
 class Callback {
 public:
-  virtual void engineNotify(Engine&, int, long);
-  virtual void enterDebugMode(Engine&);
-  virtual bool garbageCollecting(Engine&);
-  virtual void* getClassObject(Engine&, ScCore::String const&, unsigned int&);
-  virtual bool isValidClassName(Engine&, ScCore::String const&);
-  virtual void leaveDebugMode(Engine&, bool);
-  virtual bool running(Engine&);
-  virtual ScCore::Error runtimeError(Engine&);
-  virtual ScCore::Error undefinedError(Engine&, ScCore::Variant const&, ScCore::Variant const&, ScCore::Variant&);
+  virtual void engineNotify(Engine&, int, long) = 0;
+  virtual void enterDebugMode(Engine&) = 0;
+  virtual void garbageCollecting(Engine&) = 0;
+  virtual void* getClassObject(Engine&, ScCore::String const&, unsigned int&) = 0;
+  virtual bool isValidClassName(Engine&, ScCore::String const&) = 0;
+  virtual void leaveDebugMode(Engine&, bool) = 0;
+  virtual void running(Engine&) = 0;
+  virtual void runtimeError(Engine&) = 0;
+  virtual void undefinedError(Engine&, ScCore::Variant const&, ScCore::Variant const&, ScCore::Variant&) = 0;
 };
   
 };

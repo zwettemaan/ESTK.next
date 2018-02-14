@@ -8,24 +8,27 @@ namespace ESTK_N {
 
 class Callback: public ScScript::Callback {
 
-  ScScript::Callback* fOldCallback;
-  
 public:
 
   Callback(ScScript::Callback* oldCallback):
-  ScScript::Callback(),
-  fOldCallback(oldCallback) {  
+  ScScript::Callback()//,
+  {
   };
-  
+
+  /*
+  bool isRunning() {
+    return fIsRunning;
+  }
+  */
   virtual void engineNotify(ScScript::Engine&, int, long);
   virtual void enterDebugMode(ScScript::Engine&);
-  virtual bool garbageCollecting(ScScript::Engine&);
+  virtual void garbageCollecting(ScScript::Engine&);
   virtual void* getClassObject(ScScript::Engine&, ScCore::String const&, unsigned int&);
   virtual bool isValidClassName(ScScript::Engine&, ScCore::String const&);
   virtual void leaveDebugMode(ScScript::Engine&, bool);
-  virtual bool running(ScScript::Engine&);
-  virtual ScCore::Error runtimeError(ScScript::Engine&);
-  virtual ScCore::Error undefinedError(ScScript::Engine&, ScCore::Variant const&, ScCore::Variant const&, ScCore::Variant&);
+  virtual void running(ScScript::Engine&);
+  virtual void runtimeError(ScScript::Engine&);
+  virtual void undefinedError(ScScript::Engine&, ScCore::Variant const&, ScCore::Variant const&, ScCore::Variant&);
 };
   
 };

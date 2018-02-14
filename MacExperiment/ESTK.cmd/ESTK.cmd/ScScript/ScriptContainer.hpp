@@ -41,7 +41,7 @@ public:
   
   ScCore::Error* getError() const;
   
-  Script* getScript(int scriptIdx) const;
+  const Script* getScript(int scriptIdx) const;
   void insert(Script&, int afterScriptIdx);
   bool isContinueOnError() const;
   size_t length() const; // number of scripts added in
