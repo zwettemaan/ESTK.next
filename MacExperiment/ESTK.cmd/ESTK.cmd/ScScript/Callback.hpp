@@ -4,6 +4,7 @@
 #include "../ScCore/Variant.hpp"
 #include "../ScCore/String.hpp"
 #include "../ScCore/Error.hpp"
+#include "../ScCore/Callbacks.hpp"
 
 namespace ScScript {
 
@@ -16,7 +17,8 @@ class Engine;
   // they will be properly analyzed
   //
 
-class Callback {
+class Callback: ScCore::Callbacks {
+  
 public:
   virtual void engineNotify(Engine&, int, long) = 0;
   virtual void enterDebugMode(Engine&) = 0;

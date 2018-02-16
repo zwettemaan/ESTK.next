@@ -10,10 +10,9 @@ namespace ScCore {
   //
 
 class Callbacks {
-private:
-	Callbacks();
-	virtual ~Callbacks();
 public:
+  Callbacks();
+  virtual ~Callbacks();
 	static Callbacks* get();
 	static void set(Callbacks*);
 };

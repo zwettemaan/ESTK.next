@@ -10,11 +10,6 @@ class Callback: public ScScript::Callback {
 
 public:
 
-  Callback(ScScript::Callback* oldCallback):
-  ScScript::Callback()//,
-  {
-  };
-
   /*
   bool isRunning() {
     return fIsRunning;

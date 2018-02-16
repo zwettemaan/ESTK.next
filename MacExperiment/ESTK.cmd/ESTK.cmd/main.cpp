@@ -100,7 +100,7 @@ int main(int argc, const char * argv[]) {
 
   ScScript::ScriptContainer scc;
   
-  scc.compile(p2, ScCore::String(""));
+  scc.compile(p2, ScCore::String("a = 1;"));
   
   ScScript::Engine& e1(ScScript::Engine::findEngine(ScCore::String("")));
   const ScCore::String* nm2 = e1.getName();
@@ -123,8 +123,8 @@ int main(int argc, const char * argv[]) {
       ESTK_N::Logger::message("line 10 is not valid");
   }
 
-  ESTK_N::Callback* cb = new ESTK_N::Callback(e1.getCallback());
-  e1.setCallback(cb);
+  ESTK_N::Callback cb;
+  e1.setCallback(&cb);
 
   //scc.load(e1);
 
@@ -141,5 +141,6 @@ int main(int argc, const char * argv[]) {
 
   return 0;
 }
+
 
 
