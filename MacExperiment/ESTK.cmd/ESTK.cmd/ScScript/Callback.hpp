@@ -1,6 +1,7 @@
 #ifndef __ScScript_Callback__
 #define __ScScript_Callback__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/Variant.hpp"
 #include "../ScCore/String.hpp"
 #include "../ScCore/Error.hpp"
@@ -17,7 +18,7 @@ class Engine;
   // they will be properly analyzed
   //
 
-class Callback: ScCore::Callbacks {
+class Callback: ScCore::Root {
   
 public:
   virtual void engineNotify(Engine&, int, long) = 0;

@@ -1,7 +1,9 @@
 #ifndef __ScScript_ScopeNode__
 #define __ScScript_ScopeNode__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/String.hpp"
+
 #include "Node.hpp"
 
 namespace ScScript {

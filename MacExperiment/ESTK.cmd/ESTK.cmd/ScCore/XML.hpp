@@ -1,6 +1,8 @@
 #ifndef __ScCore_XML__
 #define __ScCore_XML__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,7 +11,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class XML {
+class XML: Root {
 public:
 };
   

@@ -1,6 +1,8 @@
 #ifndef __ScCore_Callbacks__
 #define __ScCore_Callbacks__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,7 +11,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Callbacks {
+class Callbacks: Root {
 public:
   Callbacks();
   virtual ~Callbacks();

@@ -1,6 +1,7 @@
 #ifndef __ScScript_Engine__
 #define __ScScript_Engine__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/String.hpp"
 #include "../ScCore/Dictionary.hpp"
 #include "../ScCore/Error.hpp"
@@ -20,12 +21,12 @@ class Callback;
 class RuntimeError;
 class ESContext;
 
-class Engine {
+class Engine: ScCore::Root {
 
 private:
 
   Engine(); // creates a Broadcaster; gets an ESContext
-  ~Engine();
+  virtual ~Engine();
 
 public:
 

@@ -1,6 +1,8 @@
 #ifndef __ScScript_Debugger__
 #define __ScScript_Debugger__
 
+#include "../ScCore/Root.hpp"
+
 namespace ScScript {
 
  //
@@ -9,10 +11,10 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class Debugger {
+class Debugger: ScCore:Root {
 private:
 	Debugger();
-	~Debugger();
+	virtual ~Debugger();
 };
 
 };

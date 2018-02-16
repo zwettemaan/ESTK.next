@@ -2,7 +2,7 @@
 #define __ScCore_OpaqueTypes__
 
 //
-// Types for which we don't have a class definition (yet)
+// Types for which we have not started guessing a class definition (yet)
 //
 
 namespace ScCore {
@@ -12,11 +12,9 @@ class ASInterface;
 class ASPackage;
 class BasicArray;
 class Broadcaster;
-class Callbacks;
 class ClassInfo;
 class Cloneable;
 class DataMessage;
-class Encoder;
 class FileFilter;
 class FileWrapper;
 class Heap;
@@ -32,7 +30,6 @@ class Message;
 class ParamInfo;
 class Refcountable;
 class RegExp;
-class Root;
 class ServiceInfo;
 class Thread;
 class TypeInfo;

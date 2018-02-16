@@ -1,6 +1,8 @@
 #ifndef __ScScript_InitTerm__
 #define __ScScript_InitTerm__
 
+// Do we need to derive from ScCore::Root?
+
 namespace ScScript {
 
  //

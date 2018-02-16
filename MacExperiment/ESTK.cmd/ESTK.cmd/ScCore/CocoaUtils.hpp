@@ -1,6 +1,8 @@
 #ifndef __ScCore_CocoaUtils__
 #define __ScCore_CocoaUtils__
 
+// Do we need to derive from Root?
+
 class NSString;
 
 namespace ScCore {

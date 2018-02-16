@@ -1,12 +1,14 @@
 #ifndef __ScScript_Node__
 #define __ScScript_Node__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/String.hpp"
+
+#include "Engine.hpp"
 
 namespace ScScript {
 
 class ScanInfo;
-class Engine;
 class BinaryNode;
 class LabelNode;
 class ListNode;
@@ -20,7 +22,7 @@ class ScopeNode;
   // they will be properly analyzed
   //
 
-class Node {
+class Node: ScCore::Root {
 private:
   Node(ScanInfo const&);
   virtual ~Node();

@@ -1,6 +1,8 @@
 #ifndef __ScScript_Script__
 #define __ScScript_Script__
 
+#include "../ScCore/Root.hpp"
+
 namespace ScScript {
 
   //
@@ -9,14 +11,14 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class Script {
+class Script: ScCore::Root {
 
 private:
 	
 public:
 
   static bool isValidLine(Script const&, int);
-  ~Script();
+  virtual ~Script();
 
 };
   

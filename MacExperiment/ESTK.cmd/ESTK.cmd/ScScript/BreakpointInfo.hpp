@@ -1,6 +1,8 @@
 #ifndef __ScScript_BreakpointInfo__
 #define __ScScript_BreakpointInfo__
 
+#include "../ScCore/Root.hpp"
+
 namespace ScScript {
 
  //
@@ -9,10 +11,10 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class BreakpointInfo {
+class BreakpointInfo: ScCore::Root {
 public:
 	BreakpointInfo();
-	~BreakpointInfo();
+	virtual ~BreakpointInfo();
   BreakpointInfo(BreakpointInfo const&);
   
   BreakpointInfo& operator=(ScScript::BreakpointInfo const&);

@@ -1,6 +1,10 @@
 #ifndef __ScCore_FileSpec__
 #define __ScCore_FileSpec__
 
+#include "Root.hpp"
+#include "String.hpp"
+#include "Array.hpp"
+
 namespace ScCore {
 
   //
@@ -10,12 +14,10 @@ namespace ScCore {
   //
 
 class SpecData;
-class String;
 class FileFilter;
-class Array;
 class FSRef;
 
-class FileSpec {
+class FileSpec: Root {
 public:
   enum PackageTreatment {
   };
@@ -24,7 +26,7 @@ public:
   FileSpec(FileSpec const&, String const&);
   FileSpec(SpecData*);
   FileSpec(String const&, bool);
-  ~FileSpec();
+  virtual ~FileSpec();
   
   bool changePath(String const&);
   static FileSpec& chooseFile(String const&, bool, String const*, FileFilter*, Array*);

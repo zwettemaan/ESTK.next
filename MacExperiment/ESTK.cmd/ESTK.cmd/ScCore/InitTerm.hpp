@@ -1,6 +1,8 @@
 #ifndef __ScCore_InitTerm__
 #define __ScCore_InitTerm__
 
+// Do we need to derive from Root?
+
 namespace ScCore {
 
 class InitTerm {

@@ -1,11 +1,12 @@
 #ifndef __ScScript_ScriptContainer__
 #define __ScScript_ScriptContainer__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/FileSpec.hpp"
 #include "../ScCore/Error.hpp"
 
-class Script;
-class Engine;
+#include "Script.hpp"
+#include "Engine.hpp"
 
 namespace ScScript {
 
@@ -15,14 +16,14 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class ScriptContainer {
+class ScriptContainer: ScCore::Root {
   
 public:
   // constructor creates an engine, type 0x10000?
   ScriptContainer();
   ScriptContainer(bool);
   
-  ~ScriptContainer();
+  virtual ~ScriptContainer();
   
   // add scripts to container
   void add(ScriptContainer const&, bool);

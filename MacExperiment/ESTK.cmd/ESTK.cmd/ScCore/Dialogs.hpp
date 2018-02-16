@@ -1,6 +1,10 @@
 #ifndef __ScCore_Dialogs__
 #define __ScCore_Dialogs__
 
+// Do we need to derive from Root?
+
+#include "Root.hpp"
+
 namespace ScCore {
 
 class String;
@@ -12,7 +16,7 @@ class Variant;
   // they will be properly analyzed
   //
 
-class Dialogs {
+class Dialogs: Root {
 public:
   static void alert(String const&);
   static void alert(String const&, String const&);

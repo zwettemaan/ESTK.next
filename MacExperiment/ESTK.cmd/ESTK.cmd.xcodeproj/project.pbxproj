@@ -46,6 +46,8 @@
 		01282E51201D274F0008E7F5 /* CocoaUtilsWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CocoaUtilsWrapper.m; sourceTree = "<group>"; };
 		01282E53201D27B40008E7F5 /* CocoaUtilsWrapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CocoaUtilsWrapper.cpp; sourceTree = "<group>"; };
 		01282E54201D27B40008E7F5 /* CocoaUtilsWrapper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CocoaUtilsWrapper.hpp; sourceTree = "<group>"; };
+		01362085203774F7001F4A6C /* Root.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Root.hpp; sourceTree = "<group>"; };
+		0136208620377C6C001F4A6C /* InterfacePtr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = InterfacePtr.hpp; sourceTree = "<group>"; };
 		014B0061201FE94F0063C100 /* Callback.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Callback.hpp; sourceTree = "<group>"; };
 		014B0062201FEC420063C100 /* Callback.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Callback.cpp; sourceTree = "<group>"; };
 		014B0063201FEC420063C100 /* Callback.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Callback.hpp; sourceTree = "<group>"; };
@@ -202,9 +204,11 @@
 				01CE7553201C022900BB9DE2 /* File.hpp */,
 				01CE754D201C022900BB9DE2 /* FileSpec.hpp */,
 				01CE754C201C022900BB9DE2 /* InitTerm.hpp */,
+				0136208620377C6C001F4A6C /* InterfacePtr.hpp */,
 				01CE7558201C022A00BB9DE2 /* LiveObject.hpp */,
 				01CE754E201C022900BB9DE2 /* Localizer.hpp */,
 				01CE755A201C022A00BB9DE2 /* OpaqueTypes.hpp */,
+				01362085203774F7001F4A6C /* Root.hpp */,
 				01CE7554201C022900BB9DE2 /* String.hpp */,
 				01CE754F201C022900BB9DE2 /* THashTable.hpp */,
 				01CE7557201C022A00BB9DE2 /* TSimpleArray.hpp */,

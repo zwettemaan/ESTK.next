@@ -1,26 +1,29 @@
 #ifndef __ScCore_Variant__
 #define __ScCore_Variant__
 
+#include "Root.hpp"
+#include "Error.hpp"
+#include "FileSpec.hpp"
+#include "Array.hpp"
+#include "String.hpp"
+
+#include "InterfacePtr.hpp"
+#include "THashTable.hpp"
+
+namespace ScScript {
+  class Engine;
+  class Object;
+};
+
+namespace ScCore {
+
 class Encoder;
-class String;
-class Array;
-class FileSpec;
 class LiveObject;
 class LiveCollection;
 class Point;
 class Rect;
 class RegExp;
 class UnitValue;
-class Engine;
-class Root;
-class Error;
-
-#include "../ScScript/Object.hpp"
-
-#include "InterfacePtr.hpp"
-#include "THashTable.hpp"
-
-namespace ScCore {
 
   //
   // All of these signatures are guesswork!
@@ -28,7 +31,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Variant {
+class Variant: Root {
 public:
 
   enum VariantType {
@@ -52,8 +55,8 @@ public:
   Variant(Variant const&);
   Variant(Variant const*);
   Variant(unsigned short const*);	
-  ~Variant();
-  void compare(Variant const&) const;
+  virtual ~Variant();
+  int compare(Variant const&) const;
   Variant& convert(VariantType);
   void doErase();
   void doGetDouble() const;
@@ -68,20 +71,20 @@ public:
   void getAsLiveObject(InterfacePtr<LiveObject>&) const;
   bool getBool() const;
   void getDataType() const;
-  Engine& getExtendScriptEngine() const;
-  FileSpec& getFileSpec() const;
+  ScScript::Engine* getExtendScriptEngine() const;
+  FileSpec* getFileSpec() const;
   int getInteger() const;
   void getInteger(int, int) const;
   void getJSObject() const;
-  LiveCollection& getLiveCollection() const;
-  LiveObject& getLiveObject() const;
+  LiveCollection* getLiveCollection() const;
+  LiveObject* getLiveObject() const;
   void getObjectData() const;
   void getObjectProperties(THashTable<Variant>&, int, Error*) const;
   void getPoint() const;
   void getRect() const;
   void getRegExp() const;
-  String& getString(int, int) const;
-  UnitValue& getUnitValue() const;
+  String* getString(int, int) const;
+  UnitValue* getUnitValue() const;
   void hasUnassignedObjectData() const;
   void isValidObject() const;
   Variant& operator=(Variant const&);
@@ -116,8 +119,8 @@ public:
   void setString(String const&);
   void setString(unsigned short const*);
   void setUnitValue(UnitValue const&);
-  String& toString() const;
-  String& toString(String&) const;
+  String* toString() const;
+  void toString(String&) const;
   bool validate(double, double) const;
   bool validate(int, int) const;
   bool validate(VariantType) const;

@@ -1,6 +1,8 @@
 #ifndef __ScScript_Object__
 #define __ScScript_Object__
 
+#include "../ScCore/Root.hpp"
+
 namespace ScScript {
 
   //
@@ -9,7 +11,7 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class Object {
+class Object: ScCore::Root {
 public:
 };
   

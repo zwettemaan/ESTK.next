@@ -4,6 +4,9 @@
 #include <cstdarg>
 #include <cstddef>
 
+#include "Root.hpp"
+#include "Array.hpp"
+
 namespace ScCore {
 
   //
@@ -13,9 +16,8 @@ namespace ScCore {
   //
 
 class Encoder;
-class Array;
 
-class String {
+class String: Root {
 
 public:
 
@@ -28,7 +30,7 @@ public:
   String(String const&);
   String(unsigned int const*, int);
   String(unsigned short const*, int);
-  ~String();
+  virtual ~String();
 
   void adjust(int);
   void append(char const*, int);

@@ -1,6 +1,8 @@
 #ifndef __ScCore_Array__
 #define __ScCore_Array__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,7 +11,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Array {
+class Array: Root {
 public:
 };
   

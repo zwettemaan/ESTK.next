@@ -1,6 +1,8 @@
 #ifndef __ScCore_LiveObject__
 #define __ScCore_LiveObject__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,7 +11,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class LiveObject {
+class LiveObject: Root {
 public:
 };
   

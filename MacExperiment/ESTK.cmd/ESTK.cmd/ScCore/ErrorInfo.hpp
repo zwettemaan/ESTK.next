@@ -1,6 +1,8 @@
 #ifndef __ScCore_ErrorInfo__
 #define __ScCore_ErrorInfo__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,7 +11,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class ErrorInfo {
+class ErrorInfo: Root {
 public:
 };
   

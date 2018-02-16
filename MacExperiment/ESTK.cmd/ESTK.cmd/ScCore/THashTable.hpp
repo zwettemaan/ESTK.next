@@ -1,6 +1,8 @@
 #ifndef __ScCore_THashTable__
 #define __ScCore_THashTable__
 
+// Do we need to derive from Root?
+
 namespace ScCore {
 
 template <class T> class THashTable {

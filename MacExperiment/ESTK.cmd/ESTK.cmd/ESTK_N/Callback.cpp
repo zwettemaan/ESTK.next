@@ -1,6 +1,8 @@
 #include "Callback.hpp"
 
 #include "../ScCore/Error.hpp"
+#include "../ScCore/String.hpp"
+#include "../ScCore/Variant.hpp"
 
 #include "../ScScript/Callback.hpp"
 #include "../ScScript/Engine.hpp"
@@ -44,7 +46,19 @@ void Callback::runtimeError(ScScript::Engine& engine) {
 }
 
 void Callback::undefinedError(ScScript::Engine& engine, ScCore::Variant const& v1, ScCore::Variant const& v2, ScCore::Variant& v3) {
-  Logger::note("runtimeError");
+  Logger::note("undefinedError");
+  
+  const ScCore::String* nm1 = engine.getName();
+  if (nm1 != nullptr) {
+    ESTK_N::Logger::message("engine name is :", Continued);
+    ESTK_N::Logger::message(nm1);
+  }
+
+  //ScCore::String* s1 = v1.toString();
+
+  //ScCore::String* s2 = v2.toString();
+  
+  //ScCore::String* s3 = v3.toString();
 }
 
 }

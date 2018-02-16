@@ -1,6 +1,8 @@
 #ifndef __ScCore_Dictionary__
 #define __ScCore_Dictionary__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,7 +11,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Dictionary {
+class Dictionary: Root {
 public:
 };
   

@@ -1,6 +1,8 @@
 #ifndef __ScCore_Localizer__
 #define __ScCore_Localizer__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,7 +11,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Localizer {
+class Localizer: Root {
 public:
 };
   

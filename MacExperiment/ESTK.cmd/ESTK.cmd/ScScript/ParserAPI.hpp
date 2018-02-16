@@ -1,6 +1,7 @@
 #ifndef __ScScript_ParserAPI__
 #define __ScScript_ParserAPI__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/String.hpp"
 
 class Engine;
@@ -15,7 +16,7 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class ParserAPI {
+class ParserAPI: ScCore::Root {
 public:
 
   ParserAPI(Engine&);

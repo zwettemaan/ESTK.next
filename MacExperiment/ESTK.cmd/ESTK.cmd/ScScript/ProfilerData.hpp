@@ -1,6 +1,8 @@
 #ifndef __ScScript_ProfilerData__
 #define __ScScript_ProfilerData__
 
+#include "../ScCore/Root.hpp"
+
 namespace ScScript {
 
  //
@@ -9,10 +11,10 @@ namespace ScScript {
   // they will be properly analyzed
   //
 
-class ProfilerData {
+class ProfilerData: ScCore::Root {
 public:
 	ProfilerData();
-	~ProfilerData();
+	virtual ~ProfilerData();
 };
 
 };

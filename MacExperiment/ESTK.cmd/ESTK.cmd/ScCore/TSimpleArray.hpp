@@ -1,6 +1,8 @@
 #ifndef __ScCore_TSimpleArray__
 #define __ScCore_TSimpleArray__
 
+// Do we need to derive from Root?
+
 namespace ScCore {
 
 template <class T> class TSimpleArray {

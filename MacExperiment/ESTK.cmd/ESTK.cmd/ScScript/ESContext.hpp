@@ -1,6 +1,7 @@
 #ifndef __ScScript_ESContext__
 #define __ScScript_ESContext__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/Context.hpp"
 
 namespace ScScript {
@@ -14,7 +15,7 @@ namespace ScScript {
 class ESContext: public ScCore::Context {
 private:
 	ESContext();
-	~ESContext();
+	virtual ~ESContext();
 public:
 	static ESContext* get();
 };

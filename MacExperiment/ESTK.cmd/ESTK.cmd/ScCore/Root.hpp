@@ -1,7 +1,5 @@
-#ifndef __ScCore_Context__
-#define __ScCore_Context__
-
-#include "Root.hpp"
+#ifndef __ScCore_Root__
+#define __ScCore_Root__
 
 namespace ScCore {
 
@@ -11,12 +9,9 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Context: Root {
-private:
-  Context();
-  virtual ~Context();
+class Root {
 public:
-  static Context* get();
+	virtual ~Root();
 };
   
 };

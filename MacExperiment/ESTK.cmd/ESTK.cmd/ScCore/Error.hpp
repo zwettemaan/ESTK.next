@@ -1,6 +1,10 @@
 #ifndef __ScCore_Error__
 #define __ScCore_Error__
 
+#include "Root.hpp"
+#include "String.hpp"
+#include "ErrorInfo.hpp"
+
 namespace ScCore {
 
   //
@@ -9,18 +13,16 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class String;
 class Variant;
 class Cloneable;
-class ErrorInfo;
 class LiveObject;
 
-class Error {
+class Error: Root {
 public:
 	Error();
 	Error(int, String const&, bool);
 	Error(Error const&);
-	~Error();
+	virtual ~Error();
 	void defineError(int, String const&, char const*);
 	void erase();
 	void getErrorDefinition(int, String&, String&);
@@ -37,7 +39,7 @@ public:
 	void undefineError(int);
 	void unique();
 };
-  
+
 };
 
 #endif

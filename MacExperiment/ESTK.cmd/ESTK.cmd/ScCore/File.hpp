@@ -1,7 +1,9 @@
 #ifndef __ScCore_File__
 #define __ScCore_File__
 
+#include "Root.hpp"
 #include "String.hpp"
+#include "FileSpec.hpp"
 
 namespace ScCore {
 
@@ -11,14 +13,11 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class FileSpec;
-class String;
-
-class File {
+class File: Root {
 public:
-  File(ScCore::File const&);
-  File(ScCore::FileSpec const&);
-  ~File();
+  File(File const&);
+  File(FileSpec const&);
+  virtual ~File();
   void close();
   void copyTo(FileSpec const&) const;
   void eof() const;

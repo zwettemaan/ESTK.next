@@ -1,6 +1,8 @@
 #ifndef __ScCore_Encoder__
 #define __ScCore_Encoder__
 
+#include "Root.hpp"
+
 namespace ScCore {
 
   //
@@ -9,10 +11,10 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Encoder {
+class Encoder: Root {
 public:
   Encoder();
-  ~Encoder();
+  virtual ~Encoder();
 
   void add(ScCore::Encoder const&);
   void addAlias(char const*, char const*);

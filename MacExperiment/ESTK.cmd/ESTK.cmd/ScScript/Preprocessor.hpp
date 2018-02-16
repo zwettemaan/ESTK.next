@@ -1,9 +1,9 @@
 #ifndef __ScScript_Preprocessor__
 #define __ScScript_Preprocessor__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/String.hpp"
 #include "../ScCore/Error.hpp"
-
 
 namespace ScScript {
 
@@ -15,13 +15,15 @@ class Script;
   // they will be properly analyzed
   //
 
-class Preprocessor {
+class Preprocessor: ScCore::Root {
 
 public:
 
+  // ? do we need to derive from ScCore::Root?
   class Data {
-    Data();
-    ~Data();
+    protected:
+      Data();
+      virtual ~Data();
   };
 
   class ProcData: Data {
@@ -31,7 +33,8 @@ public:
   };
 
   Preprocessor();
-  ~Preprocessor();
+  virtual ~Preprocessor();
+  
   void doProcess(ProcData&);
   void directive(ProcData&);
 

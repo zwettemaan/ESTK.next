@@ -53,6 +53,7 @@ int main(int argc, const char * argv[]) {
 
   const ScCore::String* nm1 = e->getName();
   if (nm1 != nullptr) {
+    ESTK_N::Logger::message("engine name is :", Continued);
     ESTK_N::Logger::message(nm1);
   }
 
@@ -81,19 +82,19 @@ int main(int argc, const char * argv[]) {
   ESTK_N::Logger::message("returned error message is :", Continued);
   ESTK_N::Logger::message(em);
 
-  ScCore::String* i4 = pp->getDirective(ScCore::String("target"));
-  if (i4 != nullptr) {
+  std::auto_ptr<ScCore::String> i4(pp->getDirective(ScCore::String("target")));
+  if (i4.get() != nullptr) {
     ESTK_N::Logger::message("target directive is ", Continued);
-    ESTK_N::Logger::message(i4);
+    ESTK_N::Logger::message(i4.get());
   }
 
-  ScCore::String* i5 = pp->getDirective(ScCore::String("somethingrandom"));
-  if (i5 == nullptr) {
+  std::auto_ptr<ScCore::String> i5(pp->getDirective(ScCore::String("somethingrandom")));
+  if (i5.get() == nullptr) {
     ESTK_N::Logger::message("accessing somethingrandom returns null");
   }
   else {
     ESTK_N::Logger::message("somethingrandom is ", Continued);
-    ESTK_N::Logger::message(i5);
+    ESTK_N::Logger::message(i5.get());
   }
 
   ESTK_N::Logger::message("p2 is ", Continued);
@@ -125,15 +126,15 @@ int main(int argc, const char * argv[]) {
   }
 
   ESTK_N::Callback* cb = new ESTK_N::Callback();
-  e1->setCallback(cb);
+  e->setCallback(cb);
 
-  scc->load(*e1);
+  scc->load(*e);
 
-  scc->execute(*e1, 0);
+  scc->execute(*e, 0);
 
-  e1->setCallback(nullptr);
+  e->setCallback(nullptr);
 
-  const ScCore::Error* err2 = e1->getError();
+  const ScCore::Error* err2 = e->getError();
   err2->getFullText(em);
   ESTK_N::Logger::message("returned error message is :", Continued);
   ESTK_N::Logger::message(em);

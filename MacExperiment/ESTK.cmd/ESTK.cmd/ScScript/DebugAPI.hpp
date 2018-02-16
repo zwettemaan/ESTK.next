@@ -1,6 +1,7 @@
 #ifndef __ScScript_DebugAPI__
 #define __ScScript_DebugAPI__
 
+#include "../ScCore/Root.hpp"
 #include "../ScCore/String.hpp"
 #include "../ScCore/Variant.hpp"
 #include "../ScCore/Error.hpp"
@@ -22,7 +23,7 @@ namespace ScScript {
 
 class Engine;
 
-class DebugAPI {
+class DebugAPI : ScCore:Root {
 public:
   enum Cmd {
   };
