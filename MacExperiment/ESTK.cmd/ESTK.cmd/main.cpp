@@ -56,37 +56,38 @@ int main(int argc, const char * argv[]) {
     ESTK_N::Logger::message(nm1);
   }
 
-  ScScript::Preprocessor pp;
+  ScScript::Preprocessor* pp = new ScScript::Preprocessor();
   
-  ScCore::String* i2 = pp.getIncludes();
+  ScCore::String* i2 = pp->getIncludes();
   ESTK_N::Logger::message(i2);
 
   ScCore::String i1("/Users/kris/Library/Preferences/Adobe InDesign/Version 13.0/en_US/Scripts/Scripts Panel/");
-  pp.setIncludes(i1);
+  pp->setIncludes(i1);
   
-  ScCore::String* i3 = pp.getIncludes();
+  ScCore::String* i3 = pp->getIncludes();
   ESTK_N::Logger::message(i3);
 
   //ScCore::String src("#target abc\n#include \"t.jsx\"\na = 1;");
-  ScCore::String src("f=File('~/Desktop/t1.txt');f.open('w');f.write('x');f.close();a = 1;\na");
-  ScCore::String p1("something");
+  //ScCore::String src("f=File('~/Desktop/t1.txt');f.open('w');f.write('x');f.close();a = 1;\na");
+  ScCore::String src("a = 1;\na"); // 2 line script
+  ScCore::String p1("");
   ScCore::String p2;
 
   ScCore::Error err;
-  pp.process(src, p1, p2, &err);
+  pp->process(src, p1, p2, &err);
 
   ScCore::String em;
   err.getFullText(em);
   ESTK_N::Logger::message("returned error message is :", Continued);
   ESTK_N::Logger::message(em);
 
-  ScCore::String* i4 = pp.getDirective(ScCore::String("target"));
+  ScCore::String* i4 = pp->getDirective(ScCore::String("target"));
   if (i4 != nullptr) {
     ESTK_N::Logger::message("target directive is ", Continued);
     ESTK_N::Logger::message(i4);
   }
 
-  ScCore::String* i5 = pp.getDirective(ScCore::String("somethingrandom"));
+  ScCore::String* i5 = pp->getDirective(ScCore::String("somethingrandom"));
   if (i5 == nullptr) {
     ESTK_N::Logger::message("accessing somethingrandom returns null");
   }
@@ -98,18 +99,18 @@ int main(int argc, const char * argv[]) {
   ESTK_N::Logger::message("p2 is ", Continued);
   ESTK_N::Logger::message(p2);
 
-  ScScript::ScriptContainer scc;
+  ScScript::ScriptContainer* scc = new ScScript::ScriptContainer();
   
-  scc.compile(p2, ScCore::String("a = 1;"));
+  scc->compile(p2, ScCore::String("a = 1;"));
   
-  ScScript::Engine& e1(ScScript::Engine::findEngine(ScCore::String("")));
-  const ScCore::String* nm2 = e1.getName();
+  ScScript::Engine* e1 = ScScript::Engine::findEngine(ScCore::String(""));
+  const ScCore::String* nm2 = e1->getName();
   if (nm2 != nullptr) {
     ESTK_N::Logger::message("nm2 is ", Continued);
     ESTK_N::Logger::message(nm2);
   }
 
-  const ScScript::Script* scr = scc.getScript(0);
+  const ScScript::Script* scr = scc->getScript(0); // script # 0 is a 2-line script
   if (ScScript::Script::isValidLine(*scr,0)) {
       ESTK_N::Logger::message("line 0 is valid");
   }
@@ -120,17 +121,19 @@ int main(int argc, const char * argv[]) {
       ESTK_N::Logger::message("line 10 is valid");
   }
   else {
-      ESTK_N::Logger::message("line 10 is not valid");
+      ESTK_N::Logger::message("line 10 is not valid"); // This ought to fire - script has only 2 lines
   }
 
-  ESTK_N::Callback cb;
-  e1.setCallback(&cb);
+  ESTK_N::Callback* cb = new ESTK_N::Callback();
+  e1->setCallback(cb);
 
-  //scc.load(e1);
+  scc->load(*e1);
 
-  scc.execute(e1, 0);
+  scc->execute(*e1, 0);
 
-  const ScCore::Error* err2 = e1.getError();
+  e1->setCallback(nullptr);
+
+  const ScCore::Error* err2 = e1->getError();
   err2->getFullText(em);
   ESTK_N::Logger::message("returned error message is :", Continued);
   ESTK_N::Logger::message(em);
