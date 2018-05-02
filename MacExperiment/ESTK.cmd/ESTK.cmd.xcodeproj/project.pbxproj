@@ -48,6 +48,7 @@
 		01282E54201D27B40008E7F5 /* CocoaUtilsWrapper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CocoaUtilsWrapper.hpp; sourceTree = "<group>"; };
 		01362085203774F7001F4A6C /* Root.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Root.hpp; sourceTree = "<group>"; };
 		0136208620377C6C001F4A6C /* InterfacePtr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = InterfacePtr.hpp; sourceTree = "<group>"; };
+		014672B220451609000A1CF2 /* TypeInfo.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TypeInfo.hpp; sourceTree = "<group>"; };
 		014B0061201FE94F0063C100 /* Callback.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Callback.hpp; sourceTree = "<group>"; };
 		014B0062201FEC420063C100 /* Callback.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Callback.cpp; sourceTree = "<group>"; };
 		014B0063201FEC420063C100 /* Callback.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Callback.hpp; sourceTree = "<group>"; };
@@ -212,6 +213,7 @@
 				01CE7554201C022900BB9DE2 /* String.hpp */,
 				01CE754F201C022900BB9DE2 /* THashTable.hpp */,
 				01CE7557201C022A00BB9DE2 /* TSimpleArray.hpp */,
+				014672B220451609000A1CF2 /* TypeInfo.hpp */,
 				01CE7552201C022900BB9DE2 /* Utils.h */,
 				01CE7556201C022900BB9DE2 /* Variant.hpp */,
 				01CE7559201C022A00BB9DE2 /* XML.hpp */,

@@ -28,7 +28,7 @@ public:
   // add scripts to container
   void add(ScriptContainer const&, bool);
   void compile(ScCore::FileSpec const&, bool, bool (*)(ScCore::FileSpec const&));
-  void compile(ScCore::String const&, ScCore::String const&);
+  void compile(ScCore::String const&, ScCore::String const& script);
   
   // empty container
   void erase();

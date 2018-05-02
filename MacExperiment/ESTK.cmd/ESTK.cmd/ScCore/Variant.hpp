@@ -31,11 +31,12 @@ class UnitValue;
   // they will be properly analyzed
   //
 
+enum VariantType {
+};
+
 class Variant: Root {
 public:
 
-  enum VariantType {
-  };
 
   Variant(bool);
   Variant(char const*);
@@ -70,7 +71,7 @@ public:
   void getAsLiveCollection(InterfacePtr<LiveCollection>&) const;
   void getAsLiveObject(InterfacePtr<LiveObject>&) const;
   bool getBool() const;
-  void getDataType() const;
+  VariantType getDataType() const;
   ScScript::Engine* getExtendScriptEngine() const;
   FileSpec* getFileSpec() const;
   int getInteger() const;

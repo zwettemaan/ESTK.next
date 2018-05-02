@@ -54,11 +54,14 @@ void Callback::undefinedError(ScScript::Engine& engine, ScCore::Variant const& v
     ESTK_N::Logger::message(nm1);
   }
 
-  //ScCore::String* s1 = v1.toString();
+  ScCore::VariantType t3 = v3.getDataType();
+  ScCore::String* s3 = v3.toString();
 
-  //ScCore::String* s2 = v2.toString();
+  // ScCore::VariantType t2 = v2.getDataType();
+  // ScCore::String* s1 = v1.toString();
+  // ScCore::VariantType t1 = v1.getDataType();
+  // ScCore::String* s2 = v2.toString();
   
-  //ScCore::String* s3 = v3.toString();
 }
 
 }

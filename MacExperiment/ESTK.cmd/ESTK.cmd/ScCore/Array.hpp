@@ -2,6 +2,7 @@
 #define __ScCore_Array__
 
 #include "Root.hpp"
+#include "Variant.hpp"
 
 namespace ScCore {
 
@@ -11,7 +12,7 @@ namespace ScCore {
   // they will be properly analyzed
   //
 
-class Array: Root {
+class Array: Variant {
 public:
 };
   

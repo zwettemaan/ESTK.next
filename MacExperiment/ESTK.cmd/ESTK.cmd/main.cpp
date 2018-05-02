@@ -68,14 +68,18 @@ int main(int argc, const char * argv[]) {
   ScCore::String* i3 = pp->getIncludes();
   ESTK_N::Logger::message(i3);
 
-  //ScCore::String src("#target abc\n#include \"t.jsx\"\na = 1;");
-  //ScCore::String src("f=File('~/Desktop/t1.txt');f.open('w');f.write('x');f.close();a = 1;\na");
-  ScCore::String src("a = 1;\na"); // 2 line script
+  //ScCore::String src("#target abc\n#include \"~/Desktop/t.jsx\"\na = 1;");
+  ScCore::String src("#target abc\n#include \"~/Desktop/t.jsx\"\nf=File('~/Desktop/t1.txt');\nf.open('w');\nf.write('x');\nf.close();\na = 1;\na;\n");
+  //ScCore::String src("a = 1;\na"); // 2 line script
   ScCore::String p1("");
-  ScCore::String p2;
+  ScCore::String preprocessedScript;
 
   ScCore::Error err;
-  pp->process(src, p1, p2, &err);
+  pp->process(src, p1, preprocessedScript, &err);
+  ESTK_N::Logger::message("p1 :", Continued);
+  ESTK_N::Logger::message(p1);
+  ESTK_N::Logger::message("preprocessedScript :", Continued);
+  ESTK_N::Logger::message(preprocessedScript);
 
   ScCore::String em;
   err.getFullText(em);
@@ -96,13 +100,12 @@ int main(int argc, const char * argv[]) {
     ESTK_N::Logger::message("somethingrandom is ", Continued);
     ESTK_N::Logger::message(i5.get());
   }
-
-  ESTK_N::Logger::message("p2 is ", Continued);
-  ESTK_N::Logger::message(p2);
-
+  
   ScScript::ScriptContainer* scc = new ScScript::ScriptContainer();
   
-  scc->compile(p2, ScCore::String("a = 1;"));
+  ScCore::String p3("");
+ 
+  scc->compile(p3, preprocessedScript);
   
   ScScript::Engine* e1 = ScScript::Engine::findEngine(ScCore::String(""));
   const ScCore::String* nm2 = e1->getName();
@@ -111,24 +114,24 @@ int main(int argc, const char * argv[]) {
     ESTK_N::Logger::message(nm2);
   }
 
-  const ScScript::Script* scr = scc->getScript(0); // script # 0 is a 2-line script
+  const ScScript::Script* scr = scc->getScript(0); // script # 0 is a 9-line or so script
   if (ScScript::Script::isValidLine(*scr,0)) {
       ESTK_N::Logger::message("line 0 is valid");
   }
   if (ScScript::Script::isValidLine(*scr,1)) {
       ESTK_N::Logger::message("line 1 is valid");
   }
-  if (ScScript::Script::isValidLine(*scr,10)) {
-      ESTK_N::Logger::message("line 10 is valid");
+  if (ScScript::Script::isValidLine(*scr,12)) {
+      ESTK_N::Logger::message("line 12 is valid");
   }
   else {
-      ESTK_N::Logger::message("line 10 is not valid"); // This ought to fire - script has only 2 lines
+      ESTK_N::Logger::message("line 12 is not valid"); // This ought to fire - script has less lines
   }
 
   ESTK_N::Callback* cb = new ESTK_N::Callback();
   e->setCallback(cb);
 
-  scc->load(*e);
+  //scc->load(*e);
 
   scc->execute(*e, 0);
 

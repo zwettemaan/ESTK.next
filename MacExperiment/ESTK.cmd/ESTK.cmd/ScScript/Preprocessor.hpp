@@ -41,7 +41,7 @@ public:
 	ScCore::String* getDirective(ScCore::String const&) const;
 	ScCore::String* getIncludes() const;
 	// This calls 'doProcess'; maybe doProcess is private or protected
-	Script* process(ScCore::String const&, ScCore::String const&, ScCore::String&, ScCore::Error*);
+	void process(ScCore::String const&, ScCore::String const&, ScCore::String& preprocessedScript, ScCore::Error*);
 	void setIncludes(ScCore::String const&);
 };
   
