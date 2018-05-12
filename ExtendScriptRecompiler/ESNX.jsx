@@ -9,4 +9,4 @@
 #include "logging.jsx"
 #include "compiler.jsx"
 
-$.writeln(_ESNX_.compiler.compileFile(new File("/Users/kris/Documents/Controlled/Rorohiko/ExtendScriptRecompiler/compiler.jsx")));
+$.writeln(_ESNX_.compiler.compileFile(new File("/Users/kris/Documents/Controlled/Rorohiko/ESTK.next/ExtendScriptRecompiler/compiler.jsx")));

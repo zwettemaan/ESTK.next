@@ -4,67 +4,33 @@
 // By Kris Coppieters, kris@rorohiko.com
 //
 
+#include "compilerConst.jsx"
+
 if (typeof _ESNX_ == "undefined") {
     _ESNX_ = {};
 }
 
-if ("undefined" == typeof kTokenNone)
-{
-const kTokenNone                          =  0;
-const kTokenLiteralString                 =  1;
-const kTokenKeyword                       =  2;
-const kTokenOpenParens                    =  3;
-const kTokenCloseParens                   =  4;
-const kTokenOpenBrace                     =  5;
-const kTokenCloseBrace                    =  6;
-const kTokenNumber                        =  7;
-const kTokenSemicolon                     = 10;
-const kTokenIncrement                     = 11;
-const kTokenDecrement                     = 12;
-const kTokenAdd                           = 13;
-const kTokenMultiply                      = 14;
-const kTokenSubtract                      = 15;
-const kTokenDivide                        = 16;
-const kTokenBitAnd                        = 17;
-const kTokenBitOr                         = 18;
-const kTokenAnd                           = 19;
-const kTokenOr                            = 20;
-const kTokenPeriod                        = 21;
-const kTokenColon                         = 22;
-const kTokenEqual                         = 23;
-const kTokenAssign                        = 24;
-const kTokenComma                         = 25;
-const kTokenQuestionMark                  = 26;
-const kTokenRegExp                        = 27;
-const kTokenGreaterOrEqual                = 28;
-const kTokenGreater                       = 29;
-const kTokenLessOrEqual                   = 30;
-const kTokenLess                          = 31;
-const kTokenAddInTo                       = 32;
-const kTokenSubtractInTo                  = 33;
-const kTokenMultiplyInTo                  = 34;
-const kTokenDivideInTo                    = 35;
-const kTokenAndInTo                       = 36;
-const kTokenOrInTo                        = 37;
-const kTokenBitAndInTo                    = 38;
-const kTokenBitOrInTo                     = 39;
-const kTokenBitXorInTo                    = 40;
-const kTokenBitXor                        = 41;
-const kTokenBitShiftLeft                  = 42;
-const kTokenBitShiftRight                 = 43;
-const kTokenBitShiftLeftInto              = 44;
-const kTokenBitShiftRightInto             = 45;
-const kTokenIdentical                     = 46;
-const kTokenOpenBracket                   = 47;
-const kTokenCloseBracket                  = 48;
-const kTokenPreprocessor                  = 49;
-}
+(function(){
 
-if (! _ESNX_.compiler) {
-    _ESNX_.compiler = {};
-}
+_ESNX_.compiler = {};
 
-_ESNX_.compiler.compileFile = function(in_file) {
+var template = function() {
+
+    var retVal = undefined;
+
+    do {
+        try {
+            LOG_ERROR("template function - don't use");
+        }
+        catch (err) {
+            LOG_ERROR("template: throws " + err)
+        }
+    }
+    while (false);
+}
+_ESNX_.compiler.template = template;
+
+var compileFile = function(in_file) {
 
     var retVal = "";
 
@@ -84,7 +50,7 @@ _ESNX_.compiler.compileFile = function(in_file) {
             var scriptText = in_file.read();
             in_file.close();
 
-            retVal = _ESNX_.compiler.compileScript(scriptText);
+            retVal = compileScript(scriptText);
         }
         catch (err) {
             LOG_ERROR("compileFile: throws " + err)
@@ -94,14 +60,15 @@ _ESNX_.compiler.compileFile = function(in_file) {
 
     return retVal;
 }
+_ESNX_.compiler.compileFile = compileFile;
 
+var tokenListToString = function(tokenList) {
 
-function dumpTokenQueue(tokenQueue) {
     var dump = "";
     var lineNumber = 1;
     var prvTokenType = kTokenNone;
-    for (var idx = 0; idx < tokenQueue.length; idx++) {
-        var token = tokenQueue[idx];
+    for (var idx = 0; idx < tokenList.length; idx++) {
+        var token = tokenList[idx];
         while (lineNumber < token.lineNumber) {
             lineNumber++;
             dump += '\n';
@@ -111,7 +78,10 @@ function dumpTokenQueue(tokenQueue) {
             case kTokenNone:
                 break;
             case kTokenLiteralString:
-                dump += '"' + token.token.replace(/\\/g,"//").replace(/"/g, "\"") + '"';
+                dump += '"' + token.token.replace(/\\/g,"\\\\").replace(/"/g, "\\\"") + '"';
+                break;
+            case kTokenRegExp:
+                dump += token.token;
                 break;
             case kTokenPreprocessor:
                 dump += token.token + "\n";
@@ -192,9 +162,6 @@ function dumpTokenQueue(tokenQueue) {
             case kTokenQuestionMark:
                 dump += '?';
                 break;
-            case kTokenRegExp:
-                dump += token.token;
-                break;
             case kTokenGreaterOrEqual:
                 dump += '>=';
                 break;
@@ -264,8 +231,9 @@ function dumpTokenQueue(tokenQueue) {
 
     return dump;
 }
+_ESNX_.compiler.tokenListToString = tokenListToString;
 
-_ESNX_.compiler.compileScript = function(in_scriptText) {
+var compileScript = function(in_scriptText) {
 
     var retVal = "";
 
@@ -302,43 +270,10 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                 }
             }
 
-            const kScriptStateIdle                    =  0;
-            const kScriptStateKeyword                 =  1;
-            const kScriptStateDoubleQuote             =  2;
-            const kScriptStateSingleQuote             =  3;
-            const kScriptStateNumerical               =  4;
-            const kScriptStatePeriod                  =  5;
-            const kScriptStateNumericalMantisse       =  6;
-            const kScriptStateNumericalExponent       =  7;
-            const kScriptStateZero                    =  8;
-            const kScriptStateHexNumber               =  9;
-            const kScriptStateNumericalExponentNumber = 10;
-            const kScriptStateMinus                   = 11;
-            const kScriptStatePlus                    = 12;
-            const kScriptStateEquals                  = 13;
-            const kScriptStateLess                    = 14;
-            const kScriptStateGreater                 = 15;
-            const kScriptStateRegExp                  = 16;
-            const kScriptStateRegExpBackslash         = 17;
-            const kScriptStateDoubleQuoteBackslash    = 18;
-            const kScriptStateSingleQuoteBackslash    = 19;
-            const kScriptStateAfterRegExp             = 20;
-            const kScriptStateTimes                   = 21;
-            const kScriptStateDivide                  = 22;
-            const kScriptStateAnd                     = 23;
-            const kScriptStateOr                      = 24;
-            const kScriptStateDoubleEquals            = 25;
-            const kScriptStateDoubleAnd               = 26;
-            const kScriptStateDoubleOr                = 27;
-            const kScriptStateXor                     = 28;
-            const kScriptStateDoubleGreater           = 29;
-            const kScriptStateDoubleLess              = 30;
-            const kScriptStatePreprocessor            = 31;
-
             var scriptState = kScriptStateIdle;
             var lastTokenType = kTokenNone;
             var scriptCharsQueuePos = 0;
-            var literalString = "";
+            var stringConst = "";
             var keyword = "";
             var numberStr = "";
             var regExp = "";
@@ -355,7 +290,6 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
             var counter = 0;
             
             function addToTokenQueue(token) {
-                if (tokenQueue.length >= 2859) debugger;
                 tokenQueue.push(token);
                 lastTokenType = token.tokenType;
             }
@@ -395,12 +329,10 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                 scriptState = kScriptStatePreprocessor;
                             }
                             else if (scriptChr == '"') {
-                                literalString = "";
                                 tokenLineNumber = lineNumber;
                                 scriptState = kScriptStateDoubleQuote;
                             }
                             else if (scriptChr == "'") {
-                                literalString = "";
                                 tokenLineNumber = lineNumber;
                                 scriptState = kScriptStateSingleQuote;
                             }
@@ -560,6 +492,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: preprocessorString
                                 });
+                                preprocessorString = "";
                                 scriptState = kScriptStateIdle;
                             }
                             else {
@@ -690,7 +623,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                             }
                             else {
                                 regExp += scriptChr;
-                                if (scriptChr == '\'') {
+                                if (scriptChr == '\\') {
                                     scriptState = kScriptStateRegExpBackslash;
                                 }
                             }
@@ -699,7 +632,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                             regExp += scriptChr;
                             scriptState = kScriptStateRegExp;
                             break;
-                          case kScriptStateAfterRegExp:
+                        case kScriptStateAfterRegExp:
                             if (scriptChr >= 'a' && scriptChr <= 'z') {
                                 regExp += scriptChr;
                             }
@@ -710,6 +643,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: regExp
                                 });
+                                regExp = "";
                                 scriptState = kScriptStateIdle;
                             }
                             break;
@@ -976,6 +910,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
                                 });
+                                numberStr = "";
                                 scriptState = kScriptStateIdle;                                
                             }
                             break;
@@ -997,6 +932,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
                                 });                             
+                                numberStr = "";
                                 scriptState = kScriptStateIdle;
                             }
                             break;
@@ -1011,6 +947,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
                                 });
+                                numberStr = "";
                                 scriptState = kScriptStateIdle;
                             }
                             break;
@@ -1030,6 +967,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
                                 });
+                                numberStr = "";
                                 scriptState = kScriptStateIdle;
                             }
                             break;
@@ -1048,6 +986,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
                                 });
+                                numberStr = "";
                                 scriptState = kScriptStateIdle;
                             }
                             break;
@@ -1070,6 +1009,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
                                 });
+                                numberStr = "";
                                 scriptState = kScriptStateIdle;
                             }
                             break;
@@ -1093,6 +1033,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                     lineNumber: tokenLineNumber,
                                     token: keyword
                                 });
+                                keyword = "";
                                 scriptState = kScriptStateIdle;
                             }
                             break;
@@ -1101,19 +1042,22 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                 addToTokenQueue({
                                     tokenType: kTokenLiteralString,
                                     lineNumber: tokenLineNumber,
-                                    token: literalString
+                                    token: stringConst
                                 });
+                                stringConst = "";
                                 scriptState = kScriptStateIdle;
                             }
                             else {
-                                literalString += scriptChr;
                                 if (scriptChr == "\\") {
                                     scriptState = kScriptStateDoubleQuoteBackslash;
                                 }
+                                else {
+                                    stringConst += scriptChr;
+                                }                                    
                             } 
                             break;
                         case kScriptStateDoubleQuoteBackslash:
-                            literalString += scriptChr;
+                            stringConst += scriptChr;
                             scriptState = kScriptStateDoubleQuote;
                             break;
                         case kScriptStateSingleQuote:
@@ -1121,19 +1065,22 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                                 addToTokenQueue({
                                     tokenType: kTokenLiteralString,
                                     lineNumber: tokenLineNumber,
-                                    token: literalString
+                                    token: stringConst
                                 });
+                                stringConst = "";
                                 scriptState = kScriptStateIdle;
                             }
                             else {
-                                literalString += scriptChr;
                                 if (scriptChr == "\\") {
                                     scriptState = kScriptStateSingleQuoteBackslash;
                                 }
+                                else {
+                                    stringConst += scriptChr;
+                                }                                    
                             } 
                             break;
                         case kScriptStateSingleQuoteBackslash:
-                            literalString += scriptChr;
+                            stringConst += scriptChr;
                             scriptState = kScriptStateSingleQuote;
                             break;
                     }
@@ -1143,25 +1090,6 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
 
 
             }
-
-            const kCommentStateIdle                      =  0;
-            const kCommentStateSlash                     =  1;
-            const kCommentStateSlashStarComment          =  2;
-            const kCommentStateSlashStarCommentStar      =  3;
-            const kCommentStateSlashSlashComment         =  4;
-            const kCommentStateDoubleQuote               =  5;
-            const kCommentStateDoubleQuoteBackslash      =  6;
-            const kCommentStateSingleQuote               =  7;
-            const kCommentStateSingleQuoteBackslash      =  8;
-            const kCommentStateEOF                       =  9;
-            const kCommentStateRegExp                    = 10;
-            const kCommentStateRegExpBackslash           = 11;
-            const kCommentStateAfterRegExp               = 12;
-            const kCommentStateHash                      = 13;
-            const kCommentStateHashDoubleQuoted          = 14;
-            const kCommentStateHashDoubleQuotedBackslash = 15;
-            const kCommentStateHashSingleQuoted          = 16;
-            const kCommentStateHashSingleQuotedBackslash = 17;
 
             var commentState = kCommentStateIdle;
             var charPos = 0;
@@ -1187,8 +1115,6 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                     }
                 }
                 else {
-                    
-                    if (charPos >= 50000) debugger;
                     
                     rawChr = in_scriptText.charAt(charPos);
                     if (rawChr == '\r') {
@@ -1226,12 +1152,10 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         }
                         else if (rawChr == "\"") {
                             commentState = kCommentStateDoubleQuote;
-                            literalString = "";
                             literalStringLineNumber = lineNumber;
                         }
                         else if (rawChr == "'") {
                             commentState = kCommentStateSingleQuote;
-                            literalString = "";
                             literalStringLineNumber = lineNumber;
                         }
                         else {
@@ -1240,7 +1164,8 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         break;
                     case kCommentStateHash:
                         if (rawChr == '\n' || rawChr == '\r' || rawChr == '/') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber)
+                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
+                            literalString = "";
                             commentState = kCommentStateIdle;
                         }
                         else { 
@@ -1255,7 +1180,8 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         break;
                     case kCommentStateHashDoubleQuoted:
                         if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber)
+                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
+                            literalString = "";
                             commentState = kCommentStateIdle;
                         }
                         else {
@@ -1270,7 +1196,8 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         break;
                     case kCommentStateHashDoubleQuotedBackslash:
                         if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber)
+                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
+                            literalString = "";
                             commentState = kCommentStateIdle;
                         }
                         else {
@@ -1280,7 +1207,8 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         break;
                     case kCommentStateHashSingleQuoted:
                         if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber)
+                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
+                            literalString = "";
                             commentState = kCommentStateIdle;
                         }
                         else {
@@ -1295,7 +1223,8 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         break;
                     case kCommentStateHashSingleQuotedBackslash:
                         if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber)
+                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
+                            literalString = "";
                             commentState = kCommentStateIdle;
                         }
                         else {
@@ -1321,10 +1250,12 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                             prvNonWhiteRawChr == ')'
                         ) {
                             addToScriptCharsQueue("/" + rawChr, lineNumber);
+                            commentState = kCommentStateIdle;
                         }
                         else {
                             commentState = kCommentStateRegExp;
-                            literalString = "/" + rawChr;
+                            literalString = "/";
+                            charPos--;
                             literalStringLineNumber = lineNumber;
                         }
                         break;
@@ -1333,9 +1264,11 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                             literalString += rawChr;
                             commentState = kCommentStateAfterRegExp;
                         }
-                        else if (rawChr == '\\') {
+                        else {
                             literalString += rawChr;
-                            commentState = kCommentStateRegExpBackslash;
+                            if (rawChr == '\\') {
+                                commentState = kCommentStateRegExpBackslash;
+                            }
                         }
                         break;
                     case kCommentStateRegExpBackslash:
@@ -1348,8 +1281,9 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         }
                         else {
                             addToScriptCharsQueue(literalString, literalStringLineNumber);
+                            literalString = "";
                             charPos--;
-                            state = kCommentStateIdle;
+                            commentState = kCommentStateIdle;
                         }
                         break;
                     case kCommentStateSlashStarComment:
@@ -1374,6 +1308,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                     case kCommentStateDoubleQuote:
                         if (rawChr == "\"") {
                             addToScriptCharsQueue("\"" + literalString + "\"", literalStringLineNumber);
+                            literalString = "";
                             commentState = kCommentStateIdle;
                         }
                         else {
@@ -1390,6 +1325,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                     case kCommentStateSingleQuote:
                         if (rawChr == "'") {
                             addToScriptCharsQueue("'" + literalString + "'", literalStringLineNumber);
+                            literalString = "";
                             commentState = kCommentStateIdle;
                         }
                         else {
@@ -1401,7 +1337,7 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
                         break;
                     case kCommentStateSingleQuoteBackslash:
                         literalString += rawChr;
-                        commentState = kCommentStateDoubleQuote;
+                        commentState = kCommentStateSingleQuote;
                         break;
                     case kCommentStateEOF:
                         break;
@@ -1420,20 +1356,8 @@ _ESNX_.compiler.compileScript = function(in_scriptText) {
     }
     while (false);
 
-    return dumpTokenQueue(tokenQueue);
+    return tokenListToString(tokenQueue);
 }
+_ESNX_.compiler.compileScript = compileScript;
 
-_ESNX_.compiler.template = function() {
-
-    var retVal = undefined;
-
-    do {
-        try {
-            LOG_ERROR("template function - don't use");
-        }
-        catch (err) {
-            LOG_ERROR("template: throws " + err)
-        }
-    }
-    while (false);
-}
+})();
