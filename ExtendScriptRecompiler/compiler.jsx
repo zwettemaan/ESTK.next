@@ -62,6 +62,59 @@ var compileFile = function(in_file) {
 }
 _ESNX_.compiler.compileFile = compileFile;
 
+var hexIntToStr = function(i, len) {
+    var retVal = "";
+    while (len > 0) {
+        var nib = i & 0x0F;
+        if (nib < 10) {
+            retVal = String.fromCharCode(48 + nib) + retVal;
+        }
+        else {
+            retVal = String.fromCharCode(65 + nib - 10) + retVal;
+        }
+        i = i >> 4;
+        len--;
+    }    
+
+    return retVal;
+}
+
+_ESNX_.compiler.hexIntToStr = hexIntToStr;
+
+var escapeStr = function(s) {
+    var retVal = "";
+    for (var charPos = 0; charPos < s.length; charPos++) {
+        var c = s.charAt(charPos);
+        if (c == '"') {
+            retVal += '\\"';
+        }
+        else if (c == '\\') {
+            retVal += '\\\\';
+        }    
+        else if (c == '\n') {
+            retVal += '\\n';
+        }    
+        else if (c == '\r') {
+            retVal += '\\r';
+        } 
+        else if (c == '\t') {
+            retVal += '\\t';
+        } 
+        else if (c < ' ') {
+            retVal += "\\x" + hexIntToStr(c.charCodeAt(0), 2);
+        }
+        else if (c > '\x7f') {
+            retVal += "\\u" + hexIntToStr(c.charCodeAt(0), 4);
+        }
+        else {
+            retVal += c;
+        }
+    }
+
+    return retVal;
+}
+_ESNX_.compiler.escapeStr = escapeStr;
+
 var tokenListToString = function(tokenList) {
 
     var dump = "";
@@ -78,7 +131,7 @@ var tokenListToString = function(tokenList) {
             case kTokenNone:
                 break;
             case kTokenLiteralString:
-                dump += '"' + token.token.replace(/\\/g,"\\\\").replace(/"/g, "\\\"") + '"';
+                dump += '"' + escapeStr(token.token) + '"';
                 break;
             case kTokenRegExp:
                 dump += token.token;
@@ -270,6 +323,7 @@ var compileScript = function(in_scriptText) {
                 }
             }
 
+            // TODO: put these in a state struct so we can separate this off in a separate function
             var scriptState = kScriptStateIdle;
             var lastTokenType = kTokenNone;
             var scriptCharsQueuePos = 0;
@@ -282,15 +336,16 @@ var compileScript = function(in_scriptText) {
             var prvLineNumber = 0;
             var tokenLineNumber = 0;
             var scriptChr = "";
+            var codeChar = "";
 
-            var tokenQueue = [];
+            var tokenList = [];
 
             function processToken() {
             }
             var counter = 0;
             
-            function addToTokenQueue(token) {
-                tokenQueue.push(token);
+            function addTotokenList(token) {
+                tokenList.push(token);
                 lastTokenType = token.tokenType;
             }
 
@@ -337,70 +392,70 @@ var compileScript = function(in_scriptText) {
                                 scriptState = kScriptStateSingleQuote;
                             }
                             else if (scriptChr == ';') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenSemicolon,
                                     lineNumber: lineNumber,
                                     token: ';'
                                 });
                             }
                             else if (scriptChr == ':') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenColon,
                                     lineNumber: lineNumber,
                                     token: ':'
                                 });
                             }
                             else if (scriptChr == '{') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenOpenBrace,
                                     lineNumber: lineNumber,
                                     token: '{'
                                 });
                             }
                             else if (scriptChr == '}') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenCloseBrace,
                                     lineNumber: lineNumber,
                                     token: '}'
                                 });
                             }
                             else if (scriptChr == '[') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenOpenBracket,
                                     lineNumber: lineNumber,
                                     token: '['
                                 });
                             }
                             else if (scriptChr == ']') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenCloseBracket,
                                     lineNumber: lineNumber,
                                     token: ']'
                                 });
                             }
                             else if (scriptChr == '(') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenOpenParens,
                                     lineNumber: lineNumber,
                                     token: '('
                                 });
                             }
                             else if (scriptChr == ')') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenCloseParens,
                                     lineNumber: lineNumber,
                                     token: ')'
                                 });
                             }
                             else if (scriptChr == ',') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenComma,
                                     lineNumber: lineNumber,
                                     token: ','
                                 });
                             }
                             else if (scriptChr == '?') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenQuestionMark,
                                     lineNumber: lineNumber,
                                     token: '?'
@@ -487,7 +542,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStatePreprocessor:
                             if (scriptChr < ' ') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenPreprocessor,
                                     lineNumber: tokenLineNumber,
                                     token: preprocessorString
@@ -501,7 +556,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateGreater:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenGreaterOrEqual,
                                     lineNumber: lineNumber,
                                     token: '>='
@@ -513,7 +568,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenGreater,
                                     lineNumber: lineNumber,
                                     token: '>'
@@ -523,7 +578,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateDoubleGreater:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitShiftRightInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '>>='
@@ -533,7 +588,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitShiftRight,
                                     lineNumber: tokenLineNumber,
                                     token: '>>'
@@ -543,7 +598,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateLess:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenLessOrEqual,
                                     lineNumber: tokenLineNumber,
                                     token: '<='
@@ -555,7 +610,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenLess,
                                     lineNumber: tokenLineNumber,
                                     token: '<'
@@ -565,7 +620,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateDoubleLess:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitShiftLeftInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '<<='
@@ -575,7 +630,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitShiftLeft,
                                     lineNumber: tokenLineNumber,
                                     token: '<<'
@@ -589,7 +644,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenAssign,
                                     lineNumber: tokenLineNumber,
                                     token: '='
@@ -599,7 +654,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateDoubleEquals:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenIdentical,
                                     lineNumber: tokenLineNumber,
                                     token: '==='
@@ -608,7 +663,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenEqual,
                                     lineNumber: tokenLineNumber,
                                     token: '=='
@@ -638,7 +693,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenRegExp,
                                     lineNumber: tokenLineNumber,
                                     token: regExp
@@ -650,7 +705,7 @@ var compileScript = function(in_scriptText) {
                         case kScriptStatePeriod:
                             if (lastTokenType == kTokenKeyword) {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenPeriod,
                                     lineNumber: tokenLineNumber,
                                     token: '.',
@@ -671,7 +726,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenPeriod,
                                     lineNumber: tokenLineNumber,
                                     token: '.'
@@ -681,7 +736,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStatePlus:
                             if (scriptChr == '+') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenIncrement,
                                     lineNumber: tokenLineNumber,
                                     token: '++'
@@ -689,7 +744,7 @@ var compileScript = function(in_scriptText) {
                                 scriptState = kScriptStateIdle;
                             }
                             else if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenAddInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '+='
@@ -703,7 +758,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenAdd,
                                     lineNumber: tokenLineNumber,
                                     token: '+'
@@ -716,7 +771,7 @@ var compileScript = function(in_scriptText) {
                                 scriptState = kScriptStateDoubleAnd;
                             }
                             else if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitAndInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '&='
@@ -726,7 +781,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitAnd,
                                     lineNumber: tokenLineNumber,
                                     token: '&'
@@ -736,7 +791,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateDoubleAnd:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenAndInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '&&='
@@ -746,7 +801,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenAnd,
                                     lineNumber: tokenLineNumber,
                                     token: '&&'
@@ -759,7 +814,7 @@ var compileScript = function(in_scriptText) {
                                 scriptState = kScriptStateDoubleOr;
                             }
                             else if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitOrInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '|='
@@ -769,7 +824,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitOr,
                                     lineNumber: tokenLineNumber,
                                     token: '|'
@@ -779,7 +834,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateDoubleOr:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenOrInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '||='
@@ -789,7 +844,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenOr,
                                     lineNumber: tokenLineNumber,
                                     token: '||'
@@ -799,7 +854,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateXor:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitXorInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '^='
@@ -809,7 +864,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenBitXor,
                                     lineNumber: tokenLineNumber,
                                     token: '^'
@@ -819,7 +874,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateTimes:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenMultiplyInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '*='
@@ -829,7 +884,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenMultiply,
                                     lineNumber: tokenLineNumber,
                                     token: '*'
@@ -839,7 +894,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateDivide:
                             if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenDivideInTo,
                                     lineNumber: tokenLineNumber,
                                     token: '/='
@@ -849,7 +904,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenDivide,
                                     lineNumber: tokenLineNumber,
                                     token: '/'
@@ -859,7 +914,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateMinus:
                             if (scriptChr == '-') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenDecrement,
                                     lineNumber: tokenLineNumber,
                                     token: '--'
@@ -867,7 +922,7 @@ var compileScript = function(in_scriptText) {
                                 scriptState = kScriptStateIdle;
                             }
                             else if (scriptChr == '=') {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenSubtractInto,
                                     lineNumber: tokenLineNumber,
                                     token: '-='
@@ -881,7 +936,7 @@ var compileScript = function(in_scriptText) {
                             else 
                             {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenSubtract,
                                     lineNumber: tokenLineNumber,
                                     token: '-'
@@ -905,7 +960,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenNumber,
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
@@ -927,7 +982,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenNumber,
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
@@ -942,7 +997,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenNumber,
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
@@ -962,7 +1017,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenNumber,
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
@@ -981,7 +1036,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenNumber,
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
@@ -1004,7 +1059,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenNumber,
                                     lineNumber: tokenLineNumber,
                                     token: numberStr
@@ -1028,7 +1083,7 @@ var compileScript = function(in_scriptText) {
                             }
                             else {
                                 scriptCharsQueuePos--;
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenKeyword,
                                     lineNumber: tokenLineNumber,
                                     token: keyword
@@ -1039,7 +1094,7 @@ var compileScript = function(in_scriptText) {
                             break;
                         case kScriptStateDoubleQuote:
                             if (scriptChr == "\"") {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenLiteralString,
                                     lineNumber: tokenLineNumber,
                                     token: stringConst
@@ -1056,13 +1111,9 @@ var compileScript = function(in_scriptText) {
                                 }                                    
                             } 
                             break;
-                        case kScriptStateDoubleQuoteBackslash:
-                            stringConst += scriptChr;
-                            scriptState = kScriptStateDoubleQuote;
-                            break;
                         case kScriptStateSingleQuote:
                             if (scriptChr == "'") {
-                                addToTokenQueue({
+                                addTotokenList({
                                     tokenType: kTokenLiteralString,
                                     lineNumber: tokenLineNumber,
                                     token: stringConst
@@ -1079,9 +1130,145 @@ var compileScript = function(in_scriptText) {
                                 }                                    
                             } 
                             break;
+                        case kScriptStateDoubleQuoteBackslash:
                         case kScriptStateSingleQuoteBackslash:
-                            stringConst += scriptChr;
-                            scriptState = kScriptStateSingleQuote;
+                            if (scriptChr == 'x' || scriptChr == 'X') {
+                                scriptState = 
+                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
+                                        kScriptStateDoubleQuoteHexChar : 
+                                        kScriptStateSingleQuoteHexChar;
+                                codeChar = '\\x';
+                            }
+                            else if (scriptChr == 'u' || scriptChr == 'U') {
+                                scriptState = 
+                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
+                                        kScriptStateDoubleQuoteUnicodeChar : 
+                                        kScriptStateSingleQuoteUnicodeChar;
+                                codeChar = '\\u';
+                            }
+                            else if (scriptChr >= '0' && scriptChr <= '7') {
+                                scriptState = 
+                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
+                                        kScriptStateDoubleQuoteOctalChar : 
+                                        kScriptStateSingleQuoteOctalChar;
+                                codeChar = '\\' + scriptChr;
+                            }
+                            else {
+                                try {
+                                    stringConst += eval('\'\\' + scriptChr + '\'');
+                                }
+                                catch (err) {
+                                    LOG_ERROR("invalid escape");
+                                }
+                            }
+                            scriptState = 
+                                scriptState == kScriptStateDoubleQuoteBackslash ? 
+                                    kScriptStateDoubleQuote : 
+                                    kScriptStateSingleQuote;
+                            break;
+                        case kScriptStateDoubleQuoteOctalChar:
+                        case kScriptStateSingleQuoteOctalChar:
+                            if 
+                            (
+                                (scriptChr >= '0' && scriptChr <= '7') 
+                            ) {
+                                codeChar += scriptChr;
+                                if (codeChar.length >= 4) {
+                                    try {
+                                        stringConst += eval('\'' + codeChar + '\'');
+                                    }
+                                    catch (err) {
+                                        LOG_ERROR("invalid escape");
+                                    }
+                                    codeChar = "";
+                                    scriptState = 
+                                        scriptState == kScriptStateDoubleQuoteOctalChar ? 
+                                            kScriptStateDoubleQuote : 
+                                            kScriptStateSingleQuote;
+                                }
+                            }
+                            else {
+                                scriptCharsQueuePos--;
+                                // Do not eval if it's too short
+                                stringConst += codeChar;
+                                codeChar = "";
+                                scriptState = 
+                                    scriptState == kScriptStateDoubleQuoteOctalChar ? 
+                                        kScriptStateDoubleQuote : 
+                                        kScriptStateSingleQuote;
+                            }
+                            break;
+                        case kScriptStateDoubleQuoteHexChar:
+                        case kScriptStateSingleQuoteHexChar:
+                            if 
+                            (
+                                (scriptChr >= '0' && scriptChr <= '9') 
+                                ||
+                                (scriptChr >= 'a' && scriptChr <= 'f') 
+                                ||
+                                (scriptChr >= 'A' && scriptChr <= 'F') 
+                            ) {
+                                codeChar += scriptChr;
+                                if (codeChar.length >= 4) {
+                                    try {
+                                        stringConst += eval('\'' + codeChar + '\'');
+                                    }
+                                    catch (err) {
+                                        LOG_ERROR("invalid escape");
+                                    }
+                                    codeChar = "";
+                                    scriptState = 
+                                        scriptState == kScriptStateDoubleQuoteHexChar ?
+                                            kScriptStateDoubleQuote : 
+                                            kScriptStateSingleQuote;
+                                }
+                            }
+                            else {
+                                scriptCharsQueuePos--;
+                                // Do not eval if it's too short
+                                stringConst += codeChar;
+                                codeChar = "";
+                                scriptState = 
+                                    scriptState == kScriptStateDoubleQuoteHexChar ?
+                                        kScriptStateDoubleQuote : 
+                                        kScriptStateSingleQuote;
+                            }
+                            break;
+                        case kScriptStateDoubleQuoteUnicodeChar:
+                        case kScriptStateSingleQuoteUnicodeChar:
+                            if 
+                            (
+                                (scriptChr >= '0' && scriptChr <= '9') 
+                                ||
+                                (scriptChr >= 'a' && scriptChr <= 'f') 
+                                ||
+                                (scriptChr >= 'A' && scriptChr <= 'F') 
+                            ) {
+                                codeChar += scriptChr;
+                                if (codeChar.length >= 6) {
+                                    try {
+                                        stringConst += eval('\'' + codeChar + '\'');
+                                    }
+                                    catch (err) {
+                                        LOG_ERROR("invalid escape");
+                                    }
+                                    codeChar = "";
+                                    scriptState = 
+                                        scriptState == kScriptStateDoubleQuoteUnicodeChar ? 
+                                            kScriptStateDoubleQuote : 
+                                            kScriptStateSingleQuote;
+                                }
+                            }
+                            else {
+                                scriptCharsQueuePos--;
+                                // Do not eval if it's too short
+                                stringConst += codeChar;
+                                codeChar = "";
+                                scriptState = 
+                                    scriptState == kScriptStateDoubleQuoteUnicodeChar ?
+                                        kScriptStateDoubleQuote : 
+                                        kScriptStateSingleQuote;
+                            }
                             break;
                     }
 
@@ -1356,7 +1543,7 @@ var compileScript = function(in_scriptText) {
     }
     while (false);
 
-    return tokenListToString(tokenQueue);
+    return tokenListToString(tokenList);
 }
 _ESNX_.compiler.compileScript = compileScript;
 

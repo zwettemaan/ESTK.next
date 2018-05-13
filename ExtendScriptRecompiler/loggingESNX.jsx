@@ -68,7 +68,6 @@ _ESNX_.logging.logMessage = function(logLevel, msg) {
 		}
 
 		_ESNX_.logging.message(msg);
-		_ESNX_.job.addLogEntryToJobTicket(msg);
 
 	}
 	while (false);
