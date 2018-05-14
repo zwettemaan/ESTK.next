@@ -100,7 +100,7 @@ var escapeStr = function(s) {
         else if (c == '\t') {
             retVal += '\\t';
         } 
-        else if (c < ' ') {
+        else if (c < ' ' || c == '\x7F') {
             retVal += "\\x" + hexIntToStr(c.charCodeAt(0), 2);
         }
         else if (c > '\x7f') {
@@ -310,6 +310,7 @@ var compileScript = function(in_scriptText) {
                 else {
                     if (whiteSpace.length > 0) {
                         scriptCharsQueue += whiteSpace;
+                        scriptCharsLineNumber.push(lineNumber);
                         whiteSpace = "";
                     }
                     scriptCharsQueue += rawChr;
@@ -558,7 +559,7 @@ var compileScript = function(in_scriptText) {
                             if (scriptChr == '=') {
                                 addTotokenList({
                                     tokenType: kTokenGreaterOrEqual,
-                                    lineNumber: lineNumber,
+                                    lineNumber: tokenLineNumber,
                                     token: '>='
                                 });
                                 scriptState = kScriptStateIdle;
@@ -570,7 +571,7 @@ var compileScript = function(in_scriptText) {
                                 scriptCharsQueuePos--;
                                 addTotokenList({
                                     tokenType: kTokenGreater,
-                                    lineNumber: lineNumber,
+                                    lineNumber: tokenLineNumber,
                                     token: '>'
                                 });
                                 scriptState = kScriptStateIdle;
@@ -1160,11 +1161,11 @@ var compileScript = function(in_scriptText) {
                                 catch (err) {
                                     LOG_ERROR("invalid escape");
                                 }
+                                scriptState = 
+                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
+                                        kScriptStateDoubleQuote : 
+                                        kScriptStateSingleQuote;
                             }
-                            scriptState = 
-                                scriptState == kScriptStateDoubleQuoteBackslash ? 
-                                    kScriptStateDoubleQuote : 
-                                    kScriptStateSingleQuote;
                             break;
                         case kScriptStateDoubleQuoteOctalChar:
                         case kScriptStateSingleQuoteOctalChar:
