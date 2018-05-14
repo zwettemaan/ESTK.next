@@ -9,6 +9,8 @@
 // Don't try to re-define const if they are already defined
 if ("undefined" == typeof kTokenNone)
 {
+const kParserStateIdle                       =  0;
+
 const kTokenNone                             =  0;
 const kTokenLiteralString                    =  1;
 const kTokenKeyword                          =  2;

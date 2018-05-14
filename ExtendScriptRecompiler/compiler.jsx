@@ -30,6 +30,40 @@ var template = function() {
 }
 _ESNX_.compiler.template = template;
 
+function addCharToScriptCharsQueue(scriptContext, rawChr, lineNumber) {
+
+    if (" \t".indexOf(rawChr) >= 0) {
+        if (scriptContext.bufferedWhiteSpace.length == 0) {
+            scriptContext.bufferedWhiteSpace = " ";
+        }
+    }
+    else if ("\n\r".indexOf(rawChr) >= 0) {
+        scriptContext.bufferedWhiteSpace = "\n";
+    }
+    else {
+        if (scriptContext.bufferedWhiteSpace.length > 0) {
+            scriptContext.scriptCharsQueue += scriptContext.bufferedWhiteSpace;
+            scriptContext.scriptCharsLineNumber.push(lineNumber);
+            scriptContext.bufferedWhiteSpace = "";
+        }
+        scriptContext.scriptCharsQueue += rawChr;
+        scriptContext.scriptCharsLineNumber.push(lineNumber);
+    }
+
+}
+
+function addToScriptCharsQueue(scriptContext, chars, lineNumber) {
+    for (var idx = 0; idx < chars.length; idx++) {
+        addCharToScriptCharsQueue(scriptContext, chars.charAt(idx), lineNumber);
+    }
+}
+
+function addToTokenList(parserContext, scriptContext, token) {
+    parserContext.tokenQueue.push(token);
+    parserContext.tokenList.push(token);
+    scriptContext.lastTokenType = token.tokenType;
+}
+
 var compileFile = function(in_file) {
 
     var retVal = "";
@@ -62,24 +96,66 @@ var compileFile = function(in_file) {
 }
 _ESNX_.compiler.compileFile = compileFile;
 
-var hexIntToStr = function(i, len) {
+var compileScript = function(in_scriptText) {
+
     var retVal = "";
-    while (len > 0) {
-        var nib = i & 0x0F;
-        if (nib < 10) {
-            retVal = String.fromCharCode(48 + nib) + retVal;
-        }
-        else {
-            retVal = String.fromCharCode(65 + nib - 10) + retVal;
-        }
-        i = i >> 4;
-        len--;
-    }    
 
-    return retVal;
+    do {
+        try {
+
+            var textState = {
+                commentState: kCommentStateIdle,
+                scriptText: in_scriptText,
+                scriptLength: in_scriptText.length,
+                charPos: 0,
+                literalString: "",
+                literalStringLineNumber: 0,
+                lineNumber: 1,
+                seenCrLineEnd: false,
+                prvNonWhiteRawChr: "",
+                nonWhiteCharOnLineCount: false
+            };
+
+            var scriptContext = {
+                scriptState: kScriptStateIdle,
+                scriptCharsQueue: "",
+                scriptCharsLineNumber: [],
+                bufferedWhiteSpace: "",
+                lastTokenType: kTokenNone,
+                scriptCharsQueuePos: 0,
+                stringConst: "",
+                keyword: "",
+                numberStr: "",
+                regExp: "",
+                preprocessorString: "",
+                prvNonWhiteScriptChr: "",
+                prvLineNumber: 0,
+                tokenLineNumber: 0,
+                scriptChr: "",
+                codeChar: ""
+            };
+
+            var parserContext = {
+                parserState: kParserStateIdle,
+                tokenQueue: [],
+                tokenList: []
+            };
+        
+            while (textState.commentState != kCommentStateEOF || scriptContext.scriptCharsQueue.length > 0 || parserContext.tokenQueue.length > 0) {
+                processRawScriptChar(scriptContext, textState);
+                processFilteredScriptChar(parserContext, scriptContext);
+                processToken(parserContext);
+            }
+        }
+        catch (err) {
+            LOG_ERROR("compileScript: throws " + err)
+        }
+    }
+    while (false);
+
+    return tokenListToString(parserContext.tokenList);
 }
-
-_ESNX_.compiler.hexIntToStr = hexIntToStr;
+_ESNX_.compiler.compileScript = compileScript;
 
 var escapeStr = function(s) {
     var retVal = "";
@@ -115,9 +191,1266 @@ var escapeStr = function(s) {
 }
 _ESNX_.compiler.escapeStr = escapeStr;
 
+var hexIntToStr = function(i, len) {
+    var retVal = "";
+    while (len > 0) {
+        var nib = i & 0x0F;
+        if (nib < 10) {
+            retVal = String.fromCharCode(48 + nib) + retVal;
+        }
+        else {
+            retVal = String.fromCharCode(65 + nib - 10) + retVal;
+        }
+        i = i >> 4;
+        len--;
+    }    
+
+    return retVal;
+}
+
+_ESNX_.compiler.hexIntToStr = hexIntToStr;
+
+function processFilteredScriptChar(parserContext, scriptContext) {
+
+    do {
+
+        if (scriptContext.scriptCharsQueuePos >= scriptContext.scriptCharsQueue.length) {
+            
+            if (scriptContext.scriptCharsQueuePos) {
+                scriptContext.scriptCharsQueue = "";
+                scriptContext.scriptCharsLineNumber = [];
+                scriptContext.scriptCharsQueuePos = 0;
+            }
+            break;
+        }
+
+        var scriptChr = scriptContext.scriptCharsQueue.charAt(scriptContext.scriptCharsQueuePos);
+        var lineNumber = scriptContext.scriptCharsLineNumber[scriptContext.scriptCharsQueuePos];
+        
+        scriptContext.scriptCharsQueuePos++;
+        switch (scriptContext.scriptState) {
+            default:
+                LOG_ERROR("processFilteredScriptChar: unexpected scriptContext.scriptState");
+                break;
+            case kScriptStateIdle:
+                if (scriptChr <= ' ') {
+                    // do nothing
+                }
+                else if (scriptChr == '#' && scriptContext.prvLineNumber != lineNumber) {
+                    scriptContext.preprocessorString = scriptChr;
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStatePreprocessor;
+                }
+                else if (scriptChr == '"') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateDoubleQuote;
+                }
+                else if (scriptChr == "'") {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateSingleQuote;
+                }
+                else if (scriptChr == ';') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenSemicolon,
+                        lineNumber: lineNumber,
+                        token: ';'
+                    });
+                }
+                else if (scriptChr == ':') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenColon,
+                        lineNumber: lineNumber,
+                        token: ':'
+                    });
+                }
+                else if (scriptChr == '{') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenOpenBrace,
+                        lineNumber: lineNumber,
+                        token: '{'
+                    });
+                }
+                else if (scriptChr == '}') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenCloseBrace,
+                        lineNumber: lineNumber,
+                        token: '}'
+                    });
+                }
+                else if (scriptChr == '[') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenOpenBracket,
+                        lineNumber: lineNumber,
+                        token: '['
+                    });
+                }
+                else if (scriptChr == ']') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenCloseBracket,
+                        lineNumber: lineNumber,
+                        token: ']'
+                    });
+                }
+                else if (scriptChr == '(') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenOpenParens,
+                        lineNumber: lineNumber,
+                        token: '('
+                    });
+                }
+                else if (scriptChr == ')') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenCloseParens,
+                        lineNumber: lineNumber,
+                        token: ')'
+                    });
+                }
+                else if (scriptChr == ',') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenComma,
+                        lineNumber: lineNumber,
+                        token: ','
+                    });
+                }
+                else if (scriptChr == '?') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenQuestionMark,
+                        lineNumber: lineNumber,
+                        token: '?'
+                    });
+                }
+                else if (scriptChr == '0') {
+                    scriptContext.numberStr = "0";
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateZero;
+                }
+                else if (scriptChr >= '1' && scriptChr <= '9') {
+                    scriptContext.numberStr = scriptChr;
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateNumerical;
+                }
+                else if (scriptChr == '.') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStatePeriod;
+                }
+                else if (scriptChr == '+') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStatePlus;
+                }
+                else if (scriptChr == '-') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateMinus;
+                }
+                else if (scriptChr == '&') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateAnd;
+                }
+                else if (scriptChr == '^') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateXor;
+                }
+                else if (scriptChr == '|') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateOr;
+                }
+                else if (scriptChr == '*') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateTimes;
+                }
+                else if (scriptChr == '=') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateEquals;
+                }
+                else if (scriptChr == '<') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateLess;
+                }
+                else if (scriptChr == '>') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.scriptState = kScriptStateGreater;
+                }
+                else if (scriptChr == '/') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    if 
+                    (
+                        (scriptContext.prvNonWhiteScriptChr >= 'a' && scriptContext.prvNonWhiteScriptChr <= 'z')
+                        ||
+                        (scriptContext.prvNonWhiteScriptChr >= '0' && scriptContext.prvNonWhiteScriptChr <= '9')
+                        ||
+                        scriptContext.prvNonWhiteScriptChr == '.'
+                        ||
+                        scriptContext.prvNonWhiteScriptChr == '$'
+                        ||
+                        scriptContext.prvNonWhiteScriptChr == '_'
+                        ||
+                        scriptContext.prvNonWhiteScriptChr == ')'
+                    ) {
+                        scriptContext.scriptState = kScriptStateDivide;
+                    }
+                    else {
+                        scriptContext.regExp = scriptChr;
+                        scriptContext.scriptState = kScriptStateRegExp;
+                    }
+                }
+                else if (scriptChr > ' ') {
+                    scriptContext.tokenLineNumber = lineNumber;
+                    scriptContext.keyword = scriptChr;
+                    scriptContext.scriptState = kScriptStateKeyword;
+                }                           
+                break;
+            case kScriptStatePreprocessor:
+                if (scriptChr < ' ') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenPreprocessor,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.preprocessorString
+                    });
+                    scriptContext.preprocessorString = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else {
+                    scriptContext.preprocessorString += scriptChr;
+                }
+                break;
+            case kScriptStateGreater:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenGreaterOrEqual,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '>='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else if (scriptChr == '>') {
+                    scriptContext.scriptState = kScriptStateDoubleGreater;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenGreater,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '>'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateDoubleGreater:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitShiftRightInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '>>='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitShiftRight,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '>>'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateLess:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenLessOrEqual,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '<='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else if (scriptChr == '<') {
+                    scriptContext.scriptState = kScriptStateDoubleLess;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenLess,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '<'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateDoubleLess:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitShiftLeftInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '<<='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitShiftLeft,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '<<'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateEquals:
+                if (scriptChr == '=') {
+                    scriptContext.scriptState = kScriptStateDoubleEquals;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenAssign,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateDoubleEquals:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenIdentical,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '==='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenEqual,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '=='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateRegExp:
+                if (scriptChr == '/') {
+                    scriptContext.regExp += scriptChr;
+                    scriptContext.scriptState = kScriptStateAfterRegExp;
+                }
+                else {
+                    scriptContext.regExp += scriptChr;
+                    if (scriptChr == '\\') {
+                        scriptContext.scriptState = kScriptStateRegExpBackslash;
+                    }
+                }
+                break;
+            case kScriptStateRegExpBackslash: 
+                scriptContext.regExp += scriptChr;
+                scriptContext.scriptState = kScriptStateRegExp;
+                break;
+            case kScriptStateAfterRegExp:
+                if (scriptChr >= 'a' && scriptChr <= 'z') {
+                    scriptContext.regExp += scriptChr;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenRegExp,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.regExp
+                    });
+                    scriptContext.regExp = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStatePeriod:
+                if (scriptContext.lastTokenType == kTokenKeyword) {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenPeriod,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '.',
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else if 
+                  (
+                      (scriptChr >= '0' && scriptChr <= '9') 
+                      || 
+                      scriptChr == 'e' 
+                      || 
+                      scriptChr == 'E'
+                  ) {
+                    scriptContext.numberStr += '.' + scriptChr;
+                    scriptContext.scriptState = kScriptStateNumerical;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenPeriod,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '.'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStatePlus:
+                if (scriptChr == '+') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenIncrement,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '++'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenAddInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '+='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else if (scriptChr >= '0' && scriptChr >= '9') {
+                    scriptContext.numberStr += '+' + scriptChr;
+                    scriptContext.scriptState = kScriptStateNumerical;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenAdd,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '+'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateAnd:
+                if (scriptChr == '&') {
+                    scriptContext.scriptState = kScriptStateDoubleAnd;
+                }
+                else if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitAndInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '&='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitAnd,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '&'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateDoubleAnd:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenAndInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '&&='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenAnd,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '&&'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateOr:
+                if (scriptChr == '|') {
+                    scriptContext.scriptState = kScriptStateDoubleOr;
+                }
+                else if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitOrInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '|='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitOr,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '|'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateDoubleOr:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenOrInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '||='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenOr,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '||'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateXor:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitXorInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '^='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenBitXor,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '^'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateTimes:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenMultiplyInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '*='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenMultiply,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '*'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateDivide:
+                if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenDivideInTo,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '/='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenDivide,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '/'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateMinus:
+                if (scriptChr == '-') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenDecrement,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '--'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else if (scriptChr == '=') {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenSubtractInto,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '-='
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else if (scriptChr >= '0' && scriptChr >= '9') {
+                    scriptContext.numberStr += '-' + scriptChr;
+                    scriptContext.scriptState = kScriptStateNumerical;
+                }
+                else 
+                {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenSubtract,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: '-'
+                    });
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateZero:
+                if 
+                  (
+                    scriptChr == 'x' 
+                    ||
+                    scriptChr == 'X'
+                  ) {
+                    scriptContext.numberStr += scriptChr;
+                    scriptContext.scriptState = kScriptStateHexNumber;
+                }
+                else if (scriptChr >= '0' && scriptChr <= '9') {
+                    scriptContext.numberStr += scriptChr;
+                    scriptContext.scriptState = kScriptStateNumerical;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenNumber,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.numberStr
+                    });
+                    scriptContext.numberStr = "";
+                    scriptContext.scriptState = kScriptStateIdle;                                
+                }
+                break;
+            case kScriptStateHexNumber:
+                if 
+                  (
+                      (scriptChr >= '0' && scriptChr <= '9') 
+                      || 
+                      (scriptChr >= 'a' && scriptChr <= 'f') 
+                      || 
+                      (scriptChr >= 'A' && scriptChr <= 'F')
+                  ) {
+                    scriptContext.numberStr += scriptChr;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenNumber,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.numberStr
+                    });                             
+                    scriptContext.numberStr = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateNumericalExponentNumber:
+                if (scriptChr >= '0' && scriptChr <= '9') {
+                    scriptContext.numberStr += scriptChr;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenNumber,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.numberStr
+                    });
+                    scriptContext.numberStr = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateNumericalExponent:
+                if (scriptChr >= '-' && scriptChr <= '+') {
+                    scriptContext.numberStr += scriptChr;
+                    scriptContext.scriptState = kScriptStateNumericalExponentNumber;
+                }
+                else if (scriptChr >= '0' && scriptChr <= '9') {
+                    scriptContext.numberStr += scriptChr;
+                    scriptContext.scriptState = kScriptStateNumericalExponentNumber;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenNumber,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.numberStr
+                    });
+                    scriptContext.numberStr = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateNumericalMantisse:
+                if (scriptChr >= '0' && scriptChr <= '9') {
+                    scriptContext.numberStr += scriptChr;
+                }
+                else if (scriptChr == 'e' || scriptChr == 'E') {
+                    scriptContext.numberStr += scriptChr;
+                    scriptContext.scriptState = kScriptStateNumericalExponent;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenNumber,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.numberStr
+                    });
+                    scriptContext.numberStr = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateNumerical:
+                if (scriptChr >= '0' && scriptChr <= '9') {
+                    scriptContext.numberStr += scriptChr;
+                }
+                else if (scriptChr == '.') {
+                    scriptContext.numberStr += scriptChr;
+                    scriptContext.scriptState = kScriptStateNumericalMantisse;
+                }
+                else if (scriptChr == 'e' || scriptChr == 'E') {
+                    scriptContext.numberStr += scriptChr;
+                    scriptContext.scriptState = kScriptStateNumericalExponent;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenNumber,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.numberStr
+                    });
+                    scriptContext.numberStr = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateKeyword:
+                if 
+                  (
+                      (scriptChr >= 'a' && scriptChr <= 'z') 
+                      || 
+                      (scriptChr >= 'A' && scriptChr <= 'Z') 
+                      || 
+                      (scriptChr >= '0' && scriptChr <= '9') 
+                      || scriptChr == '$' 
+                      || scriptChr == '_'
+                  ) {
+                    scriptContext.keyword += scriptChr;
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenKeyword,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.keyword
+                    });
+                    scriptContext.keyword = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                break;
+            case kScriptStateDoubleQuote:
+                if (scriptChr == "\"") {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenLiteralString,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.stringConst
+                    });
+                    scriptContext.stringConst = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else {
+                    if (scriptChr == "\\") {
+                        scriptContext.scriptState = kScriptStateDoubleQuoteBackslash;
+                    }
+                    else {
+                        scriptContext.stringConst += scriptChr;
+                    }                                    
+                } 
+                break;
+            case kScriptStateSingleQuote:
+                if (scriptChr == "'") {
+                    addToTokenList(parserContext, scriptContext,
+                    {
+                        tokenType: kTokenLiteralString,
+                        lineNumber: scriptContext.tokenLineNumber,
+                        token: scriptContext.stringConst
+                    });
+                    scriptContext.stringConst = "";
+                    scriptContext.scriptState = kScriptStateIdle;
+                }
+                else {
+                    if (scriptChr == "\\") {
+                        scriptContext.scriptState = kScriptStateSingleQuoteBackslash;
+                    }
+                    else {
+                        scriptContext.stringConst += scriptChr;
+                    }                                    
+                } 
+                break;
+            case kScriptStateDoubleQuoteBackslash:
+            case kScriptStateSingleQuoteBackslash:
+                if (scriptChr == 'x' || scriptChr == 'X') {
+                    scriptContext.scriptState = 
+                        scriptContext.scriptState == kScriptStateDoubleQuoteBackslash ? 
+                            kScriptStateDoubleQuoteHexChar : 
+                            kScriptStateSingleQuoteHexChar;
+                    scriptContext.codeChar = '\\x';
+                }
+                else if (scriptChr == 'u' || scriptChr == 'U') {
+                    scriptContext.scriptState = 
+                        scriptContext.scriptState == kScriptStateDoubleQuoteBackslash ? 
+                            kScriptStateDoubleQuoteUnicodeChar : 
+                            kScriptStateSingleQuoteUnicodeChar;
+                    scriptContext.codeChar = '\\u';
+                }
+                else if (scriptChr >= '0' && scriptChr <= '7') {
+                    scriptContext.scriptState = 
+                        scriptContext.scriptState == kScriptStateDoubleQuoteBackslash ? 
+                            kScriptStateDoubleQuoteOctalChar : 
+                            kScriptStateSingleQuoteOctalChar;
+                    scriptContext.codeChar = '\\' + scriptChr;
+                }
+                else {
+                    try {
+                        scriptContext.stringConst += eval('\'\\' + scriptChr + '\'');
+                    }
+                    catch (err) {
+                        LOG_ERROR("invalid escape");
+                    }
+                    scriptContext.scriptState = 
+                        scriptContext.scriptState == kScriptStateDoubleQuoteBackslash ? 
+                            kScriptStateDoubleQuote : 
+                            kScriptStateSingleQuote;
+                }
+                break;
+            case kScriptStateDoubleQuoteOctalChar:
+            case kScriptStateSingleQuoteOctalChar:
+                if 
+                (
+                    (scriptChr >= '0' && scriptChr <= '7') 
+                ) {
+                    scriptContext.codeChar += scriptChr;
+                    if (scriptContext.codeChar.length >= 4) {
+                        try {
+                            scriptContext.stringConst += eval('\'' + scriptContext.codeChar + '\'');
+                        }
+                        catch (err) {
+                            LOG_ERROR("invalid escape");
+                        }
+                        scriptContext.codeChar = "";
+                        scriptContext.scriptState = 
+                            scriptContext.scriptState == kScriptStateDoubleQuoteOctalChar ? 
+                                kScriptStateDoubleQuote : 
+                                kScriptStateSingleQuote;
+                    }
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    // Do not eval if it's too short
+                    scriptContext.stringConst += scriptContext.codeChar;
+                    scriptContext.codeChar = "";
+                    scriptContext.scriptState = 
+                        scriptContext.scriptState == kScriptStateDoubleQuoteOctalChar ? 
+                            kScriptStateDoubleQuote : 
+                            kScriptStateSingleQuote;
+                }
+                break;
+            case kScriptStateDoubleQuoteHexChar:
+            case kScriptStateSingleQuoteHexChar:
+                if 
+                (
+                    (scriptChr >= '0' && scriptChr <= '9') 
+                    ||
+                    (scriptChr >= 'a' && scriptChr <= 'f') 
+                    ||
+                    (scriptChr >= 'A' && scriptChr <= 'F') 
+                ) {
+                    scriptContext.codeChar += scriptChr;
+                    if (scriptContext.codeChar.length >= 4) {
+                        try {
+                            scriptContext.stringConst += eval('\'' + scriptContext.codeChar + '\'');
+                        }
+                        catch (err) {
+                            LOG_ERROR("invalid escape");
+                        }
+                        scriptContext.codeChar = "";
+                        scriptContext.scriptState = 
+                            scriptContext.scriptState == kScriptStateDoubleQuoteHexChar ?
+                                kScriptStateDoubleQuote : 
+                                kScriptStateSingleQuote;
+                    }
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    // Do not eval if it's too short
+                    scriptContext.stringConst += scriptContext.codeChar;
+                    scriptContext.codeChar = "";
+                    scriptContext.scriptState = 
+                        scriptContext.scriptState == kScriptStateDoubleQuoteHexChar ?
+                            kScriptStateDoubleQuote : 
+                            kScriptStateSingleQuote;
+                }
+                break;
+            case kScriptStateDoubleQuoteUnicodeChar:
+            case kScriptStateSingleQuoteUnicodeChar:
+                if 
+                (
+                    (scriptChr >= '0' && scriptChr <= '9') 
+                    ||
+                    (scriptChr >= 'a' && scriptChr <= 'f') 
+                    ||
+                    (scriptChr >= 'A' && scriptChr <= 'F') 
+                ) {
+                    scriptContext.codeChar += scriptChr;
+                    if (scriptContext.codeChar.length >= 6) {
+                        try {
+                            scriptContext.stringConst += eval('\'' + scriptContext.codeChar + '\'');
+                        }
+                        catch (err) {
+                            LOG_ERROR("invalid escape");
+                        }
+                        scriptContext.codeChar = "";
+                        scriptContext.scriptState = 
+                            scriptContext.scriptState == kScriptStateDoubleQuoteUnicodeChar ? 
+                                kScriptStateDoubleQuote : 
+                                kScriptStateSingleQuote;
+                    }
+                }
+                else {
+                    scriptContext.scriptCharsQueuePos--;
+                    // Do not eval if it's too short
+                    scriptContext.stringConst += scriptContext.codeChar;
+                    scriptContext.codeChar = "";
+                    scriptContext.scriptState = 
+                        scriptContext.scriptState == kScriptStateDoubleQuoteUnicodeChar ?
+                            kScriptStateDoubleQuote : 
+                            kScriptStateSingleQuote;
+                }
+                break;
+        }
+    
+        if (scriptChr > ' ') {
+            scriptContext.prvNonWhiteScriptChr = scriptChr;
+        }
+        scriptContext.prvLineNumber = lineNumber;
+
+    }
+    while (false);
+    
+
+}
+
+function processRawScriptChar(scriptContext, textState) {
+
+    var rawChr;
+    if (textState.charPos >= textState.scriptLength) {
+        textState.commentState = kCommentStateEOF;
+        rawChr = "";
+    }
+    else {
+        
+        rawChr = textState.scriptText.charAt(textState.charPos);
+        if (rawChr == '\r') {
+            textState.nonWhiteCharOnLineCount = 0;
+            textState.lineNumber++;
+            textState.seenCrLineEnd = true;
+        }
+        else {
+            if (rawChr == '\n') {
+                textState.nonWhiteCharOnLineCount = 0;
+                if (! textState.seenCrLineEnd) {
+                    textState.lineNumber++;
+                }
+            }
+            else if (rawChr > ' ') {
+                textState.nonWhiteCharOnLineCount++;
+            }
+            textState.seenCrLineEnd = false;
+        }
+        textState.charPos++;
+    }
+
+    switch (textState.commentState) {
+        default:
+            LOG_ERROR("processFilteredScriptChar: unexpected textState.commentState");
+            break;
+        case kCommentStateIdle:
+            if (rawChr == '#' && textState.nonWhiteCharOnLineCount == 1) {
+                textState.commentState = kCommentStateHash;
+                textState.literalString = rawChr;
+                textState.literalStringLineNumber = textState.lineNumber;
+            }
+            else if (rawChr == '/') {
+                textState.commentState = kCommentStateSlash;
+            }
+            else if (rawChr == "\"") {
+                textState.commentState = kCommentStateDoubleQuote;
+                textState.literalStringLineNumber = textState.lineNumber;
+            }
+            else if (rawChr == "'") {
+                textState.commentState = kCommentStateSingleQuote;
+                textState.literalStringLineNumber = textState.lineNumber;
+            }
+            else if (rawChr) {
+                addToScriptCharsQueue(scriptContext, rawChr, textState.lineNumber);
+            }
+            break;
+        case kCommentStateHash:
+            if (rawChr == '\n' || rawChr == '\r' || rawChr == '/') {
+                addToScriptCharsQueue(scriptContext, textState.literalString + '\n', textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.commentState = kCommentStateIdle;
+            }
+            else { 
+                textState.literalString += rawChr;
+                if (rawChr == '"') {
+                    textState.commentState = kCommentStateHashDoubleQuoted;
+                }
+                else if (rawChr == '\'') {
+                    textState.commentState = kCommentStateHashSingleQuoted;
+                }
+            }
+            break;
+        case kCommentStateHashDoubleQuoted:
+            if (rawChr == '\n' || rawChr == '\r') {
+                addToScriptCharsQueue(scriptContext, textState.literalString + '\n', textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.commentState = kCommentStateIdle;
+            }
+            else {
+                textState.literalString += rawChr;
+                if (rawChr == '"') {
+                    textState.commentState = kCommentStateHash;
+                }
+                else if (rawChr == '\\') {
+                    textState.commentState = kCommentStateHashDoubleQuotedBackSlash;
+                }
+            }
+            break;
+        case kCommentStateHashDoubleQuotedBackslash:
+            if (rawChr == '\n' || rawChr == '\r') {
+                addToScriptCharsQueue(scriptContext, textState.literalString + '\n', textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.commentState = kCommentStateIdle;
+            }
+            else {
+                textState.literalString += rawChr;
+                textState.commentState = kCommentStateHashDoubleQuoted;
+            }
+            break;
+        case kCommentStateHashSingleQuoted:
+            if (rawChr == '\n' || rawChr == '\r') {
+                addToScriptCharsQueue(scriptContext, textState.literalString + '\n', textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.commentState = kCommentStateIdle;
+            }
+            else {
+                textState.literalString += rawChr;
+                if (rawChr == '"') {
+                    textState.commentState = kCommentStateHash;
+                }
+                else if (rawChr == '\\') {
+                    textState.commentState = kCommentStateHashSingleQuotedBackSlash;
+                }
+            }
+            break;
+        case kCommentStateHashSingleQuotedBackslash:
+            if (rawChr == '\n' || rawChr == '\r') {
+                addToScriptCharsQueue(scriptContext, textState.literalString + '\n', textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.commentState = kCommentStateIdle;
+            }
+            else {
+                textState.literalString += rawChr;
+                textState.commentState = kCommentStateHashSingleQuoted;
+            }
+            break;
+        case kCommentStateSlash:
+            if (rawChr == '/') {
+                textState.commentState = kCommentStateSlashSlashComment;
+            }
+            else if (rawChr == '*') {
+                textState.commentState = kCommentStateSlashStarComment;
+            }
+            else if 
+            (
+                (textState.prvNonWhiteRawChr >= 'a' && textState.prvNonWhiteRawChr <= 'z')
+                ||
+                (textState.prvNonWhiteRawChr >= '0' && textState.prvNonWhiteRawChr <= '9')
+                ||
+                textState.prvNonWhiteRawChr == '.'
+                ||
+                textState.prvNonWhiteRawChr == ')'
+            ) {
+                addToScriptCharsQueue(scriptContext, "/" + rawChr, textState.lineNumber);
+                textState.commentState = kCommentStateIdle;
+            }
+            else {
+                textState.commentState = kCommentStateRegExp;
+                textState.literalString = "/";
+                textState.charPos--;
+                textState.literalStringLineNumber = textState.lineNumber;
+            }
+            break;
+        case kCommentStateRegExp:
+            if (rawChr == '/') {
+                textState.literalString += rawChr;
+                textState.commentState = kCommentStateAfterRegExp;
+            }
+            else {
+                textState.literalString += rawChr;
+                if (rawChr == '\\') {
+                    textState.commentState = kCommentStateRegExpBackslash;
+                }
+            }
+            break;
+        case kCommentStateRegExpBackslash:
+            textState.literalString += rawChr;
+            textState.commentState = kCommentStateRegExp;
+            break;
+        case kCommentStateAfterRegExp:
+            if (rawChr >= 'a' && rawChr <= 'z') {
+                textState.literalString += rawChr;
+            }
+            else {
+                addToScriptCharsQueue(scriptContext, textState.literalString, textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.charPos--;
+                textState.commentState = kCommentStateIdle;
+            }
+            break;
+        case kCommentStateSlashStarComment:
+            if (rawChr == '*') {
+                textState.commentState = kCommentStateSlashStarCommentStar;
+            }
+            else {
+                addToScriptCharsQueue(scriptContext, "/" + rawChr, textState.lineNumber);
+                textState.commentState = kCommentStateIdle;
+            }
+            break;
+        case kCommentStateSlashStarCommentStar:
+            if (rawChr == '/') {
+                textState.commentState = kCommentStateIdle;
+            }
+            break;
+        case kCommentStateSlashSlashComment:
+            if (rawChr < ' ') {
+                textState.commentState = kCommentStateIdle;
+            }
+            break;
+        case kCommentStateDoubleQuote:
+            if (rawChr == "\"") {
+                addToScriptCharsQueue(scriptContext, "\"" + textState.literalString + "\"", textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.commentState = kCommentStateIdle;
+            }
+            else {
+                textState.literalString += rawChr;
+                if (rawChr == "\\") {
+                    textState.commentState = kCommentStateDoubleQuoteBackslash;
+                }
+            }
+            break;
+        case kCommentStateDoubleQuoteBackslash:
+            textState.literalString += rawChr;
+            textState.commentState = kCommentStateDoubleQuote;
+            break;
+        case kCommentStateSingleQuote:
+            if (rawChr == "'") {
+                addToScriptCharsQueue(scriptContext, "'" + textState.literalString + "'", textState.literalStringLineNumber);
+                textState.literalString = "";
+                textState.commentState = kCommentStateIdle;
+            }
+            else {
+                textState.literalString += rawChr;
+                if (rawChr == "\\") {
+                    textState.commentState = kCommentStateSingleQuoteBackslash;
+                }
+            }
+            break;
+        case kCommentStateSingleQuoteBackslash:
+            textState.literalString += rawChr;
+            textState.commentState = kCommentStateSingleQuote;
+            break;
+        case kCommentStateEOF:
+            break;
+    }
+
+    if (rawChr > ' ') {
+        textState.prvNonWhiteRawChr = rawChr;
+    }
+
+}
+
+function processToken(parserContext) {
+
+    var tokenQueue = parserContext.tokenQueue;
+    parserContext.tokenQueue = [];
+    
+    for (var tokenIdx = 0; tokenIdx < parserContext.tokenQueue.length; tokenIdx++) {
+        var token = parserContext.tokenQueue[tokenIdx];
+        
+    }       
+}
+
 var tokenListToString = function(tokenList) {
 
-    var dump = "";
+    var scriptText = "";
     var lineNumber = 1;
     var prvTokenType = kTokenNone;
     for (var idx = 0; idx < tokenList.length; idx++) {
@@ -285,1267 +1618,5 @@ var tokenListToString = function(tokenList) {
     return dump;
 }
 _ESNX_.compiler.tokenListToString = tokenListToString;
-
-var compileScript = function(in_scriptText) {
-
-    var retVal = "";
-
-    do {
-        try {
-
-            var scriptCharsQueue = "";
-            var scriptCharsLineNumber = [];
-            var whiteSpace = "";
-
-            function addCharToScriptCharsQueue(rawChr, lineNumber) {
-
-                if (" \t".indexOf(rawChr) >= 0) {
-                    if (whiteSpace.length == 0) {
-                        whiteSpace = " ";
-                    }
-                }
-                else if ("\n\r".indexOf(rawChr) >= 0) {
-                    whiteSpace = "\n";
-                }
-                else {
-                    if (whiteSpace.length > 0) {
-                        scriptCharsQueue += whiteSpace;
-                        scriptCharsLineNumber.push(lineNumber);
-                        whiteSpace = "";
-                    }
-                    scriptCharsQueue += rawChr;
-                    scriptCharsLineNumber.push(lineNumber);
-                }
-            }
-
-            function addToScriptCharsQueue(chars, lineNumber) {
-                for (var idx = 0; idx < chars.length; idx++) {
-                    addCharToScriptCharsQueue(chars.charAt(idx), lineNumber);
-                }
-            }
-
-            // TODO: put these in a state struct so we can separate this off in a separate function
-            var scriptState = kScriptStateIdle;
-            var lastTokenType = kTokenNone;
-            var scriptCharsQueuePos = 0;
-            var stringConst = "";
-            var keyword = "";
-            var numberStr = "";
-            var regExp = "";
-            var preprocessorString = "";
-            var prvNonWhiteScriptChr = "";
-            var prvLineNumber = 0;
-            var tokenLineNumber = 0;
-            var scriptChr = "";
-            var codeChar = "";
-
-            var tokenList = [];
-
-            function processToken() {
-            }
-            var counter = 0;
-            
-            function addTotokenList(token) {
-                tokenList.push(token);
-                lastTokenType = token.tokenType;
-            }
-
-            function processFilteredScriptChar() {
-
-                do {
-
-                    if (scriptCharsQueuePos >= scriptCharsQueue.length) {
-                        if (scriptCharsQueuePos) {
-                            scriptCharsQueue = "";
-                            scriptCharsLineNumber = [];
-                            scriptCharsQueuePos = 0;
-                        }
-                        break;
-                    }
-
-                    if (scriptChr > ' ') {
-                        prvNonWhiteScriptChr = scriptChr;
-                    }
-
-                    scriptChr = scriptCharsQueue.charAt(scriptCharsQueuePos);
-                    var prvLineNumber = lineNumber;
-                    var lineNumber = scriptCharsLineNumber[scriptCharsQueuePos];
-                    scriptCharsQueuePos++;
-                    switch (scriptState) {
-                        default:
-                            LOG_ERROR("processFilteredScriptChar: unexpected scriptState");
-                            break;
-                        case kScriptStateIdle:
-                            if (scriptChr <= ' ') {
-                                // do nothing
-                            }
-                            else if (scriptChr == '#' && prvLineNumber != lineNumber) {
-                                preprocessorString = scriptChr;
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStatePreprocessor;
-                            }
-                            else if (scriptChr == '"') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateDoubleQuote;
-                            }
-                            else if (scriptChr == "'") {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateSingleQuote;
-                            }
-                            else if (scriptChr == ';') {
-                                addTotokenList({
-                                    tokenType: kTokenSemicolon,
-                                    lineNumber: lineNumber,
-                                    token: ';'
-                                });
-                            }
-                            else if (scriptChr == ':') {
-                                addTotokenList({
-                                    tokenType: kTokenColon,
-                                    lineNumber: lineNumber,
-                                    token: ':'
-                                });
-                            }
-                            else if (scriptChr == '{') {
-                                addTotokenList({
-                                    tokenType: kTokenOpenBrace,
-                                    lineNumber: lineNumber,
-                                    token: '{'
-                                });
-                            }
-                            else if (scriptChr == '}') {
-                                addTotokenList({
-                                    tokenType: kTokenCloseBrace,
-                                    lineNumber: lineNumber,
-                                    token: '}'
-                                });
-                            }
-                            else if (scriptChr == '[') {
-                                addTotokenList({
-                                    tokenType: kTokenOpenBracket,
-                                    lineNumber: lineNumber,
-                                    token: '['
-                                });
-                            }
-                            else if (scriptChr == ']') {
-                                addTotokenList({
-                                    tokenType: kTokenCloseBracket,
-                                    lineNumber: lineNumber,
-                                    token: ']'
-                                });
-                            }
-                            else if (scriptChr == '(') {
-                                addTotokenList({
-                                    tokenType: kTokenOpenParens,
-                                    lineNumber: lineNumber,
-                                    token: '('
-                                });
-                            }
-                            else if (scriptChr == ')') {
-                                addTotokenList({
-                                    tokenType: kTokenCloseParens,
-                                    lineNumber: lineNumber,
-                                    token: ')'
-                                });
-                            }
-                            else if (scriptChr == ',') {
-                                addTotokenList({
-                                    tokenType: kTokenComma,
-                                    lineNumber: lineNumber,
-                                    token: ','
-                                });
-                            }
-                            else if (scriptChr == '?') {
-                                addTotokenList({
-                                    tokenType: kTokenQuestionMark,
-                                    lineNumber: lineNumber,
-                                    token: '?'
-                                });
-                            }
-                            else if (scriptChr == '0') {
-                                numberStr = "0";
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateZero;
-                            }
-                            else if (scriptChr >= '1' && scriptChr <= '9') {
-                                numberStr = scriptChr;
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateNumerical;
-                            }
-                            else if (scriptChr == '.') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStatePeriod;
-                            }
-                            else if (scriptChr == '+') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStatePlus;
-                            }
-                            else if (scriptChr == '-') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateMinus;
-                            }
-                            else if (scriptChr == '&') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateAnd;
-                            }
-                            else if (scriptChr == '^') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateXor;
-                            }
-                            else if (scriptChr == '|') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateOr;
-                            }
-                            else if (scriptChr == '*') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateTimes;
-                            }
-                            else if (scriptChr == '=') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateEquals;
-                            }
-                            else if (scriptChr == '<') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateLess;
-                            }
-                            else if (scriptChr == '>') {
-                                tokenLineNumber = lineNumber;
-                                scriptState = kScriptStateGreater;
-                            }
-                            else if (scriptChr == '/') {
-                                tokenLineNumber = lineNumber;
-                                if 
-                                (
-                                    (prvNonWhiteScriptChr >= 'a' && prvNonWhiteScriptChr <= 'z')
-                                    ||
-                                    (prvNonWhiteScriptChr >= '0' && prvNonWhiteScriptChr <= '9')
-                                    ||
-                                    prvNonWhiteScriptChr == '.'
-                                    ||
-                                    prvNonWhiteScriptChr == '$'
-                                    ||
-                                    prvNonWhiteScriptChr == '_'
-                                    ||
-                                    prvNonWhiteScriptChr == ')'
-                                ) {
-                                    scriptState = kScriptStateDivide;
-                                }
-                                else {
-                                    regExp = scriptChr;
-                                    scriptState = kScriptStateRegExp;
-                                }
-                            }
-                            else if (scriptChr > ' ') {
-                                tokenLineNumber = lineNumber;
-                                keyword = scriptChr;
-                                scriptState = kScriptStateKeyword;
-                            }                           
-                            break;
-                        case kScriptStatePreprocessor:
-                            if (scriptChr < ' ') {
-                                addTotokenList({
-                                    tokenType: kTokenPreprocessor,
-                                    lineNumber: tokenLineNumber,
-                                    token: preprocessorString
-                                });
-                                preprocessorString = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            else {
-                                preprocessorString += scriptChr;
-                            }
-                            break;
-                        case kScriptStateGreater:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenGreaterOrEqual,
-                                    lineNumber: tokenLineNumber,
-                                    token: '>='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else if (scriptChr == '>') {
-                                scriptState = kScriptStateDoubleGreater;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenGreater,
-                                    lineNumber: tokenLineNumber,
-                                    token: '>'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateDoubleGreater:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenBitShiftRightInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '>>='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenBitShiftRight,
-                                    lineNumber: tokenLineNumber,
-                                    token: '>>'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateLess:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenLessOrEqual,
-                                    lineNumber: tokenLineNumber,
-                                    token: '<='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else if (scriptChr == '<') {
-                                scriptState = kScriptStateDoubleLess;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenLess,
-                                    lineNumber: tokenLineNumber,
-                                    token: '<'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateDoubleLess:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenBitShiftLeftInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '<<='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenBitShiftLeft,
-                                    lineNumber: tokenLineNumber,
-                                    token: '<<'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateEquals:
-                            if (scriptChr == '=') {
-                                scriptState = kScriptStateDoubleEquals;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenAssign,
-                                    lineNumber: tokenLineNumber,
-                                    token: '='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateDoubleEquals:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenIdentical,
-                                    lineNumber: tokenLineNumber,
-                                    token: '==='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenEqual,
-                                    lineNumber: tokenLineNumber,
-                                    token: '=='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateRegExp:
-                            if (scriptChr == '/') {
-                                regExp += scriptChr;
-                                scriptState = kScriptStateAfterRegExp;
-                            }
-                            else {
-                                regExp += scriptChr;
-                                if (scriptChr == '\\') {
-                                    scriptState = kScriptStateRegExpBackslash;
-                                }
-                            }
-                            break;
-                        case kScriptStateRegExpBackslash: 
-                            regExp += scriptChr;
-                            scriptState = kScriptStateRegExp;
-                            break;
-                        case kScriptStateAfterRegExp:
-                            if (scriptChr >= 'a' && scriptChr <= 'z') {
-                                regExp += scriptChr;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenRegExp,
-                                    lineNumber: tokenLineNumber,
-                                    token: regExp
-                                });
-                                regExp = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStatePeriod:
-                            if (lastTokenType == kTokenKeyword) {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenPeriod,
-                                    lineNumber: tokenLineNumber,
-                                    token: '.',
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else if 
-                              (
-                                  (scriptChr >= '0' && scriptChr <= '9') 
-                                  || 
-                                  scriptChr == 'e' 
-                                  || 
-                                  scriptChr == 'E'
-                              ) {
-                                numberStr += '.' + scriptChr;
-                                scriptState = kScriptStateNumerical;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenPeriod,
-                                    lineNumber: tokenLineNumber,
-                                    token: '.'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStatePlus:
-                            if (scriptChr == '+') {
-                                addTotokenList({
-                                    tokenType: kTokenIncrement,
-                                    lineNumber: tokenLineNumber,
-                                    token: '++'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenAddInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '+='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else if (scriptChr >= '0' && scriptChr >= '9') {
-                                numberStr += '+' + scriptChr;
-                                scriptState = kScriptStateNumerical;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenAdd,
-                                    lineNumber: tokenLineNumber,
-                                    token: '+'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateAnd:
-                            if (scriptChr == '&') {
-                                scriptState = kScriptStateDoubleAnd;
-                            }
-                            else if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenBitAndInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '&='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenBitAnd,
-                                    lineNumber: tokenLineNumber,
-                                    token: '&'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateDoubleAnd:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenAndInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '&&='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenAnd,
-                                    lineNumber: tokenLineNumber,
-                                    token: '&&'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateOr:
-                            if (scriptChr == '|') {
-                                scriptState = kScriptStateDoubleOr;
-                            }
-                            else if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenBitOrInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '|='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenBitOr,
-                                    lineNumber: tokenLineNumber,
-                                    token: '|'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateDoubleOr:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenOrInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '||='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenOr,
-                                    lineNumber: tokenLineNumber,
-                                    token: '||'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateXor:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenBitXorInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '^='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenBitXor,
-                                    lineNumber: tokenLineNumber,
-                                    token: '^'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateTimes:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenMultiplyInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '*='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenMultiply,
-                                    lineNumber: tokenLineNumber,
-                                    token: '*'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateDivide:
-                            if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenDivideInTo,
-                                    lineNumber: tokenLineNumber,
-                                    token: '/='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenDivide,
-                                    lineNumber: tokenLineNumber,
-                                    token: '/'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateMinus:
-                            if (scriptChr == '-') {
-                                addTotokenList({
-                                    tokenType: kTokenDecrement,
-                                    lineNumber: tokenLineNumber,
-                                    token: '--'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else if (scriptChr == '=') {
-                                addTotokenList({
-                                    tokenType: kTokenSubtractInto,
-                                    lineNumber: tokenLineNumber,
-                                    token: '-='
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            else if (scriptChr >= '0' && scriptChr >= '9') {
-                                numberStr += '-' + scriptChr;
-                                scriptState = kScriptStateNumerical;
-                            }
-                            else 
-                            {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenSubtract,
-                                    lineNumber: tokenLineNumber,
-                                    token: '-'
-                                });
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateZero:
-                            if 
-                              (
-                                scriptChr == 'x' 
-                                ||
-                                scriptChr == 'X'
-                              ) {
-                                numberStr += scriptChr;
-                                scriptState = kScriptStateHexNumber;
-                            }
-                            else if (scriptChr >= '0' && scriptChr <= '9') {
-                                numberStr += scriptChr;
-                                scriptState = kScriptStateNumerical;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenNumber,
-                                    lineNumber: tokenLineNumber,
-                                    token: numberStr
-                                });
-                                numberStr = "";
-                                scriptState = kScriptStateIdle;                                
-                            }
-                            break;
-                        case kScriptStateHexNumber:
-                            if 
-                              (
-                                  (scriptChr >= '0' && scriptChr <= '9') 
-                                  || 
-                                  (scriptChr >= 'a' && scriptChr <= 'f') 
-                                  || 
-                                  (scriptChr >= 'A' && scriptChr <= 'F')
-                              ) {
-                                numberStr += scriptChr;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenNumber,
-                                    lineNumber: tokenLineNumber,
-                                    token: numberStr
-                                });                             
-                                numberStr = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateNumericalExponentNumber:
-                            if (scriptChr >= '0' && scriptChr <= '9') {
-                                numberStr += scriptChr;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenNumber,
-                                    lineNumber: tokenLineNumber,
-                                    token: numberStr
-                                });
-                                numberStr = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateNumericalExponent:
-                            if (scriptChr >= '-' && scriptChr <= '+') {
-                                numberStr += scriptChr;
-                                scriptState = kScriptStateNumericalExponentNumber;
-                            }
-                            else if (scriptChr >= '0' && scriptChr <= '9') {
-                                numberStr += scriptChr;
-                                scriptState = kScriptStateNumericalExponentNumber;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenNumber,
-                                    lineNumber: tokenLineNumber,
-                                    token: numberStr
-                                });
-                                numberStr = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateNumericalMantisse:
-                            if (scriptChr >= '0' && scriptChr <= '9') {
-                                numberStr += scriptChr;
-                            }
-                            else if (scriptChr == 'e' || scriptChr == 'E') {
-                                numberStr += scriptChr;
-                                scriptState = kScriptStateNumericalExponent;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenNumber,
-                                    lineNumber: tokenLineNumber,
-                                    token: numberStr
-                                });
-                                numberStr = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateNumerical:
-                            if (scriptChr >= '0' && scriptChr <= '9') {
-                                numberStr += scriptChr;
-                            }
-                            else if (scriptChr == '.') {
-                                numberStr += scriptChr;
-                                scriptState = kScriptStateNumericalMantisse;
-                            }
-                            else if (scriptChr == 'e' || scriptChr == 'E') {
-                                numberStr += scriptChr;
-                                scriptState = kScriptStateNumericalExponent;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenNumber,
-                                    lineNumber: tokenLineNumber,
-                                    token: numberStr
-                                });
-                                numberStr = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateKeyword:
-                            if 
-                              (
-                                  (scriptChr >= 'a' && scriptChr <= 'z') 
-                                  || 
-                                  (scriptChr >= 'A' && scriptChr <= 'Z') 
-                                  || 
-                                  (scriptChr >= '0' && scriptChr <= '9') 
-                                  || scriptChr == '$' 
-                                  || scriptChr == '_'
-                              ) {
-                                keyword += scriptChr;
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                addTotokenList({
-                                    tokenType: kTokenKeyword,
-                                    lineNumber: tokenLineNumber,
-                                    token: keyword
-                                });
-                                keyword = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            break;
-                        case kScriptStateDoubleQuote:
-                            if (scriptChr == "\"") {
-                                addTotokenList({
-                                    tokenType: kTokenLiteralString,
-                                    lineNumber: tokenLineNumber,
-                                    token: stringConst
-                                });
-                                stringConst = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            else {
-                                if (scriptChr == "\\") {
-                                    scriptState = kScriptStateDoubleQuoteBackslash;
-                                }
-                                else {
-                                    stringConst += scriptChr;
-                                }                                    
-                            } 
-                            break;
-                        case kScriptStateSingleQuote:
-                            if (scriptChr == "'") {
-                                addTotokenList({
-                                    tokenType: kTokenLiteralString,
-                                    lineNumber: tokenLineNumber,
-                                    token: stringConst
-                                });
-                                stringConst = "";
-                                scriptState = kScriptStateIdle;
-                            }
-                            else {
-                                if (scriptChr == "\\") {
-                                    scriptState = kScriptStateSingleQuoteBackslash;
-                                }
-                                else {
-                                    stringConst += scriptChr;
-                                }                                    
-                            } 
-                            break;
-                        case kScriptStateDoubleQuoteBackslash:
-                        case kScriptStateSingleQuoteBackslash:
-                            if (scriptChr == 'x' || scriptChr == 'X') {
-                                scriptState = 
-                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
-                                        kScriptStateDoubleQuoteHexChar : 
-                                        kScriptStateSingleQuoteHexChar;
-                                codeChar = '\\x';
-                            }
-                            else if (scriptChr == 'u' || scriptChr == 'U') {
-                                scriptState = 
-                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
-                                        kScriptStateDoubleQuoteUnicodeChar : 
-                                        kScriptStateSingleQuoteUnicodeChar;
-                                codeChar = '\\u';
-                            }
-                            else if (scriptChr >= '0' && scriptChr <= '7') {
-                                scriptState = 
-                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
-                                        kScriptStateDoubleQuoteOctalChar : 
-                                        kScriptStateSingleQuoteOctalChar;
-                                codeChar = '\\' + scriptChr;
-                            }
-                            else {
-                                try {
-                                    stringConst += eval('\'\\' + scriptChr + '\'');
-                                }
-                                catch (err) {
-                                    LOG_ERROR("invalid escape");
-                                }
-                                scriptState = 
-                                    scriptState == kScriptStateDoubleQuoteBackslash ? 
-                                        kScriptStateDoubleQuote : 
-                                        kScriptStateSingleQuote;
-                            }
-                            break;
-                        case kScriptStateDoubleQuoteOctalChar:
-                        case kScriptStateSingleQuoteOctalChar:
-                            if 
-                            (
-                                (scriptChr >= '0' && scriptChr <= '7') 
-                            ) {
-                                codeChar += scriptChr;
-                                if (codeChar.length >= 4) {
-                                    try {
-                                        stringConst += eval('\'' + codeChar + '\'');
-                                    }
-                                    catch (err) {
-                                        LOG_ERROR("invalid escape");
-                                    }
-                                    codeChar = "";
-                                    scriptState = 
-                                        scriptState == kScriptStateDoubleQuoteOctalChar ? 
-                                            kScriptStateDoubleQuote : 
-                                            kScriptStateSingleQuote;
-                                }
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                // Do not eval if it's too short
-                                stringConst += codeChar;
-                                codeChar = "";
-                                scriptState = 
-                                    scriptState == kScriptStateDoubleQuoteOctalChar ? 
-                                        kScriptStateDoubleQuote : 
-                                        kScriptStateSingleQuote;
-                            }
-                            break;
-                        case kScriptStateDoubleQuoteHexChar:
-                        case kScriptStateSingleQuoteHexChar:
-                            if 
-                            (
-                                (scriptChr >= '0' && scriptChr <= '9') 
-                                ||
-                                (scriptChr >= 'a' && scriptChr <= 'f') 
-                                ||
-                                (scriptChr >= 'A' && scriptChr <= 'F') 
-                            ) {
-                                codeChar += scriptChr;
-                                if (codeChar.length >= 4) {
-                                    try {
-                                        stringConst += eval('\'' + codeChar + '\'');
-                                    }
-                                    catch (err) {
-                                        LOG_ERROR("invalid escape");
-                                    }
-                                    codeChar = "";
-                                    scriptState = 
-                                        scriptState == kScriptStateDoubleQuoteHexChar ?
-                                            kScriptStateDoubleQuote : 
-                                            kScriptStateSingleQuote;
-                                }
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                // Do not eval if it's too short
-                                stringConst += codeChar;
-                                codeChar = "";
-                                scriptState = 
-                                    scriptState == kScriptStateDoubleQuoteHexChar ?
-                                        kScriptStateDoubleQuote : 
-                                        kScriptStateSingleQuote;
-                            }
-                            break;
-                        case kScriptStateDoubleQuoteUnicodeChar:
-                        case kScriptStateSingleQuoteUnicodeChar:
-                            if 
-                            (
-                                (scriptChr >= '0' && scriptChr <= '9') 
-                                ||
-                                (scriptChr >= 'a' && scriptChr <= 'f') 
-                                ||
-                                (scriptChr >= 'A' && scriptChr <= 'F') 
-                            ) {
-                                codeChar += scriptChr;
-                                if (codeChar.length >= 6) {
-                                    try {
-                                        stringConst += eval('\'' + codeChar + '\'');
-                                    }
-                                    catch (err) {
-                                        LOG_ERROR("invalid escape");
-                                    }
-                                    codeChar = "";
-                                    scriptState = 
-                                        scriptState == kScriptStateDoubleQuoteUnicodeChar ? 
-                                            kScriptStateDoubleQuote : 
-                                            kScriptStateSingleQuote;
-                                }
-                            }
-                            else {
-                                scriptCharsQueuePos--;
-                                // Do not eval if it's too short
-                                stringConst += codeChar;
-                                codeChar = "";
-                                scriptState = 
-                                    scriptState == kScriptStateDoubleQuoteUnicodeChar ?
-                                        kScriptStateDoubleQuote : 
-                                        kScriptStateSingleQuote;
-                            }
-                            break;
-                    }
-
-                }
-                while (false);
-
-
-            }
-
-            var commentState = kCommentStateIdle;
-            var charPos = 0;
-            var scriptLength = in_scriptText.length;
-            var literalString = "";
-            var literalStringLineNumber = 0;
-            var lineNumber = 1;
-            var seenCrLineEnd = false;
-            var prvNonWhiteRawChr = "";
-            var rawChr = "";
-            var nonWhiteCharOnLineCount = false;
-
-            function processRawScriptChar() {
-
-                if (rawChr > ' ') {
-                    prvNonWhiteRawChr = rawChr;
-                    seenLineBegin = true;
-                }
-            
-                if (charPos >= scriptLength) {
-                    if (scriptCharsQueue.length == 0) {
-                        commentState = kCommentStateEOF;
-                    }
-                }
-                else {
-                    
-                    rawChr = in_scriptText.charAt(charPos);
-                    if (rawChr == '\r') {
-                        nonWhiteCharOnLineCount = 0;
-                        lineNumber++;
-                        seenCrLineEnd = true;
-                    }
-                    else {
-                        if (rawChr == '\n') {
-                            nonWhiteCharOnLineCount = 0;
-                            if (! seenCrLineEnd) {
-                                lineNumber++;
-                            }
-                        }
-                        else if (rawChr > ' ') {
-                            nonWhiteCharOnLineCount++;
-                        }
-                        seenCrLineEnd = false;
-                    }
-                    charPos++;
-                }
-
-                switch (commentState) {
-                    default:
-                        LOG_ERROR("processFilteredScriptChar: unexpected commentState");
-                        break;
-                    case kCommentStateIdle:
-                        if (rawChr == '#' && nonWhiteCharOnLineCount == 1) {
-                            commentState = kCommentStateHash;
-                            literalString = rawChr;
-                            literalStringLineNumber = lineNumber;
-                        }
-                        else if (rawChr == '/') {
-                            commentState = kCommentStateSlash;
-                        }
-                        else if (rawChr == "\"") {
-                            commentState = kCommentStateDoubleQuote;
-                            literalStringLineNumber = lineNumber;
-                        }
-                        else if (rawChr == "'") {
-                            commentState = kCommentStateSingleQuote;
-                            literalStringLineNumber = lineNumber;
-                        }
-                        else {
-                            addToScriptCharsQueue(rawChr, lineNumber);
-                        }
-                        break;
-                    case kCommentStateHash:
-                        if (rawChr == '\n' || rawChr == '\r' || rawChr == '/') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
-                            literalString = "";
-                            commentState = kCommentStateIdle;
-                        }
-                        else { 
-                            literalString += rawChr;
-                            if (rawChr == '"') {
-                                commentState = kCommentStateHashDoubleQuoted;
-                            }
-                            else if (rawChr == '\'') {
-                                commentState = kCommentStateHashSingleQuoted;
-                            }
-                        }
-                        break;
-                    case kCommentStateHashDoubleQuoted:
-                        if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
-                            literalString = "";
-                            commentState = kCommentStateIdle;
-                        }
-                        else {
-                            literalString += rawChr;
-                            if (rawChr == '"') {
-                                commentState = kCommentStateHash;
-                            }
-                            else if (rawChr == '\\') {
-                                commentState = kCommentStateHashDoubleQuotedBackSlash;
-                            }
-                        }
-                        break;
-                    case kCommentStateHashDoubleQuotedBackslash:
-                        if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
-                            literalString = "";
-                            commentState = kCommentStateIdle;
-                        }
-                        else {
-                            literalString += rawChr;
-                            commentState = kCommentStateHashDoubleQuoted;
-                        }
-                        break;
-                    case kCommentStateHashSingleQuoted:
-                        if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
-                            literalString = "";
-                            commentState = kCommentStateIdle;
-                        }
-                        else {
-                            literalString += rawChr;
-                            if (rawChr == '"') {
-                                commentState = kCommentStateHash;
-                            }
-                            else if (rawChr == '\\') {
-                                commentState = kCommentStateHashSingleQuotedBackSlash;
-                            }
-                        }
-                        break;
-                    case kCommentStateHashSingleQuotedBackslash:
-                        if (rawChr == '\n' || rawChr == '\r') {
-                            addToScriptCharsQueue(literalString + '\n', literalStringLineNumber);
-                            literalString = "";
-                            commentState = kCommentStateIdle;
-                        }
-                        else {
-                            literalString += rawChr;
-                            commentState = kCommentStateHashSingleQuoted;
-                        }
-                        break;
-                    case kCommentStateSlash:
-                        if (rawChr == '/') {
-                            commentState = kCommentStateSlashSlashComment;
-                        }
-                        else if (rawChr == '*') {
-                            commentState = kCommentStateSlashStarComment;
-                        }
-                        else if 
-                        (
-                            (prvNonWhiteRawChr >= 'a' && prvNonWhiteRawChr <= 'z')
-                            ||
-                            (prvNonWhiteRawChr >= '0' && prvNonWhiteRawChr <= '9')
-                            ||
-                            prvNonWhiteRawChr == '.'
-                            ||
-                            prvNonWhiteRawChr == ')'
-                        ) {
-                            addToScriptCharsQueue("/" + rawChr, lineNumber);
-                            commentState = kCommentStateIdle;
-                        }
-                        else {
-                            commentState = kCommentStateRegExp;
-                            literalString = "/";
-                            charPos--;
-                            literalStringLineNumber = lineNumber;
-                        }
-                        break;
-                    case kCommentStateRegExp:
-                        if (rawChr == '/') {
-                            literalString += rawChr;
-                            commentState = kCommentStateAfterRegExp;
-                        }
-                        else {
-                            literalString += rawChr;
-                            if (rawChr == '\\') {
-                                commentState = kCommentStateRegExpBackslash;
-                            }
-                        }
-                        break;
-                    case kCommentStateRegExpBackslash:
-                        literalString += rawChr;
-                        commentState = kCommentStateRegExp;
-                        break;
-                    case kCommentStateAfterRegExp:
-                        if (rawChr >= 'a' && rawChr <= 'z') {
-                            literalString += rawChr;
-                        }
-                        else {
-                            addToScriptCharsQueue(literalString, literalStringLineNumber);
-                            literalString = "";
-                            charPos--;
-                            commentState = kCommentStateIdle;
-                        }
-                        break;
-                    case kCommentStateSlashStarComment:
-                        if (rawChr == '*') {
-                            commentState = kCommentStateSlashStarCommentStar;
-                        }
-                        else {
-                            addToScriptCharsQueue("/" + rawChr, lineNumber);
-                            commentState = kCommentStateIdle;
-                        }
-                        break;
-                    case kCommentStateSlashStarCommentStar:
-                        if (rawChr == '/') {
-                            commentState = kCommentStateIdle;
-                        }
-                        break;
-                    case kCommentStateSlashSlashComment:
-                        if (rawChr < ' ') {
-                            commentState = kCommentStateIdle;
-                        }
-                        break;
-                    case kCommentStateDoubleQuote:
-                        if (rawChr == "\"") {
-                            addToScriptCharsQueue("\"" + literalString + "\"", literalStringLineNumber);
-                            literalString = "";
-                            commentState = kCommentStateIdle;
-                        }
-                        else {
-                            literalString += rawChr;
-                            if (rawChr == "\\") {
-                                commentState = kCommentStateDoubleQuoteBackslash;
-                            }
-                        }
-                        break;
-                    case kCommentStateDoubleQuoteBackslash:
-                        literalString += rawChr;
-                        commentState = kCommentStateDoubleQuote;
-                        break;
-                    case kCommentStateSingleQuote:
-                        if (rawChr == "'") {
-                            addToScriptCharsQueue("'" + literalString + "'", literalStringLineNumber);
-                            literalString = "";
-                            commentState = kCommentStateIdle;
-                        }
-                        else {
-                            literalString += rawChr;
-                            if (rawChr == "\\") {
-                                commentState = kCommentStateSingleQuoteBackslash;
-                            }
-                        }
-                        break;
-                    case kCommentStateSingleQuoteBackslash:
-                        literalString += rawChr;
-                        commentState = kCommentStateSingleQuote;
-                        break;
-                    case kCommentStateEOF:
-                        break;
-                }
-            }
-
-            while (commentState != kCommentStateEOF) {
-                processRawScriptChar();
-                processFilteredScriptChar();
-                processToken();
-            }
-        }
-        catch (err) {
-            LOG_ERROR("compileScript: throws " + err)
-        }
-    }
-    while (false);
-
-    return tokenListToString(tokenList);
-}
-_ESNX_.compiler.compileScript = compileScript;
 
 })();
