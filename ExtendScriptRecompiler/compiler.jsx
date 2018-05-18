@@ -10,25 +10,86 @@ if (typeof _ESNX_ == "undefined") {
     _ESNX_ = {};
 }
 
+
 (function(){
 
 _ESNX_.compiler = {};
 
-var template = function() {
+initReservedWordMaps();
 
-    var retVal = undefined;
+function initReservedWordMaps() {
 
-    do {
-        try {
-            LOG_ERROR("template function - don't use");
-        }
-        catch (err) {
-            LOG_ERROR("template: throws " + err)
-        }
+    reservedWord_idByWord = {};
+    _ESNX_.compiler.reservedWord_idByWord = reservedWord_idByWord;
+
+    reservedWord_wordById = {};
+    _ESNX_.compiler.reservedWord_wordById = reservedWord_wordById;
+
+    reservedWord_idByWord["abstract"] = kReservedWord_abstract;
+    reservedWord_idByWord["boolean"] = kReservedWord_boolean;
+    reservedWord_idByWord["break"] = kReservedWord_break;
+    reservedWord_idByWord["byte"] = kReservedWord_byte;
+    reservedWord_idByWord["case"] = kReservedWord_case;
+    reservedWord_idByWord["catch"] = kReservedWord_catch;
+    reservedWord_idByWord["char"] = kReservedWord_char;
+    reservedWord_idByWord["class"] = kReservedWord_class;
+    reservedWord_idByWord["const"] = kReservedWord_const;
+    reservedWord_idByWord["continue"] = kReservedWord_continue;
+    reservedWord_idByWord["debugger"] = kReservedWord_debugger;
+    reservedWord_idByWord["default"] = kReservedWord_default;
+    reservedWord_idByWord["delete"] = kReservedWord_delete;
+    reservedWord_idByWord["do"] = kReservedWord_do;
+    reservedWord_idByWord["double"] = kReservedWord_double;
+    reservedWord_idByWord["else"] = kReservedWord_else;
+    reservedWord_idByWord["enum"] = kReservedWord_enum;
+    reservedWord_idByWord["eval"] = kReservedWord_eval;
+    reservedWord_idByWord["export"] = kReservedWord_export;
+    reservedWord_idByWord["extends"] = kReservedWord_extends;
+    reservedWord_idByWord["false"] = kReservedWord_false;
+    reservedWord_idByWord["final"] = kReservedWord_final;
+    reservedWord_idByWord["finally"] = kReservedWord_finally;
+    reservedWord_idByWord["float"] = kReservedWord_float;
+    reservedWord_idByWord["for"] = kReservedWord_for;
+    reservedWord_idByWord["function"] = kReservedWord_function;
+    reservedWord_idByWord["goto"] = kReservedWord_goto;
+    reservedWord_idByWord["if"] = kReservedWord_if;
+    reservedWord_idByWord["implements"] = kReservedWord_implements;
+    reservedWord_idByWord["import"] = kReservedWord_import;
+    reservedWord_idByWord["in"] = kReservedWord_in;
+    reservedWord_idByWord["instanceof"] = kReservedWord_instanceof;
+    reservedWord_idByWord["int"] = kReservedWord_int;
+    reservedWord_idByWord["interface"] = kReservedWord_interface;
+    reservedWord_idByWord["long"] = kReservedWord_long;
+    reservedWord_idByWord["native"] = kReservedWord_native;
+    reservedWord_idByWord["new"] = kReservedWord_new;
+    reservedWord_idByWord["null"] = kReservedWord_null;
+    reservedWord_idByWord["package"] = kReservedWord_package;
+    reservedWord_idByWord["private"] = kReservedWord_private;
+    reservedWord_idByWord["protected"] = kReservedWord_protected;
+    reservedWord_idByWord["public"] = kReservedWord_public;
+    reservedWord_idByWord["return"] = kReservedWord_return;
+    reservedWord_idByWord["short"] = kReservedWord_short;
+    reservedWord_idByWord["static"] = kReservedWord_static;
+    reservedWord_idByWord["super"] = kReservedWord_super;
+    reservedWord_idByWord["switch"] = kReservedWord_switch;
+    reservedWord_idByWord["synchronized"] = kReservedWord_synchronized;
+    reservedWord_idByWord["this"] = kReservedWord_this;
+    reservedWord_idByWord["throw"] = kReservedWord_throw;
+    reservedWord_idByWord["throws"] = kReservedWord_throws;
+    reservedWord_idByWord["transient"] = kReservedWord_transient;
+    reservedWord_idByWord["true"] = kReservedWord_true;
+    reservedWord_idByWord["try"] = kReservedWord_try;
+    reservedWord_idByWord["typeof"] = kReservedWord_typeof;
+    reservedWord_idByWord["var"] = kReservedWord_var;
+    reservedWord_idByWord["void"] = kReservedWord_void;
+    reservedWord_idByWord["volatile"] = kReservedWord_volatile;
+    reservedWord_idByWord["while"] = kReservedWord_while;
+    reservedWord_idByWord["with"] = kReservedWord_with;
+
+    for (var word in reservedWord_idByWord) {
+        reservedWord_wordById[reservedWord_idByWord[word]] = word;
     }
-    while (false);
 }
-_ESNX_.compiler.template = template;
 
 function addCharToScriptCharsQueue(scriptContext, rawChr, lineNumber) {
 
@@ -120,9 +181,9 @@ var compileScript = function(in_scriptText) {
                 scriptState: kScriptStateIdle,
                 scriptCharsQueue: "",
                 scriptCharsLineNumber: [],
+                scriptCharsQueuePos: 0,
                 bufferedWhiteSpace: "",
                 lastTokenType: kTokenNone,
-                scriptCharsQueuePos: 0,
                 stringConst: "",
                 keyword: "",
                 numberStr: "",
@@ -137,6 +198,7 @@ var compileScript = function(in_scriptText) {
 
             var parserContext = {
                 parserState: kParserStateIdle,
+                tokenQueuePos: 0,
                 tokenQueue: [],
                 tokenList: []
             };
@@ -584,7 +646,7 @@ function processFilteredScriptChar(parserContext, scriptContext) {
                 }
                 break;
             case kScriptStatePeriod:
-                if (scriptContext.lastTokenType == kTokenKeyword) {
+                if (scriptContext.lastTokenType == kTokenName || scriptContext.lastTokenType == kTokenReservedWord) {
                     scriptContext.scriptCharsQueuePos--;
                     addToTokenList(parserContext, scriptContext,
                     {
@@ -992,12 +1054,23 @@ function processFilteredScriptChar(parserContext, scriptContext) {
                 }
                 else {
                     scriptContext.scriptCharsQueuePos--;
-                    addToTokenList(parserContext, scriptContext,
-                    {
-                        tokenType: kTokenKeyword,
-                        lineNumber: scriptContext.tokenLineNumber,
-                        token: scriptContext.keyword
-                    });
+                    var reservedWord = _ESNX_.compiler.reservedWord_idByWord[scriptContext.keyword];
+                    if (reservedWord) {
+                        addToTokenList(parserContext, scriptContext,
+                        {
+                            tokenType: kTokenReservedWord,
+                            lineNumber: scriptContext.tokenLineNumber,
+                            token: reservedWord
+                        });
+                    }
+                    else {
+                        addToTokenList(parserContext, scriptContext,
+                        {
+                            tokenType: kTokenName,
+                            lineNumber: scriptContext.tokenLineNumber,
+                            token: scriptContext.keyword
+                        });
+                    }
                     scriptContext.keyword = "";
                     scriptContext.scriptState = kScriptStateIdle;
                 }
@@ -1439,13 +1512,162 @@ function processRawScriptChar(scriptContext, textState) {
 
 function processToken(parserContext) {
 
-    var tokenQueue = parserContext.tokenQueue;
-    parserContext.tokenQueue = [];
-    
-    for (var tokenIdx = 0; tokenIdx < parserContext.tokenQueue.length; tokenIdx++) {
-        var token = parserContext.tokenQueue[tokenIdx];
+    do {
         
-    }       
+        if (parserContext.tokenQueuePos >= parserContext.tokenQueue.length) {
+            parserContext.tokenQueue = [];
+            parserContext.tokenQueuePos = 0;
+            break;
+        }
+
+        var token = parserContext.tokenQueue[parserContext.tokenQueuePos];
+        parserContext.tokenQueuePos++;
+        switch (parserContext.parserState) {
+            case kParserStateIdle: 
+                handleToken(token);       
+                break;
+        }
+
+        function handleToken(token) {
+            switch (token.tokenType) {
+                case kTokenReservedWord:
+                    handleReservedWord(token);
+                    break;
+            }
+        }
+
+        function handleReservedWord(token) {
+            switch (token.token) {
+                default:
+                    LOG_ERROR("handleReservedWord: unexpected token");
+                    break;
+                case kReservedWord_abstract:
+                    break;
+                case kReservedWord_boolean:
+                    break;
+                case kReservedWord_break:
+                    break;
+                case kReservedWord_byte:
+                    break;
+                case kReservedWord_case:
+                    break;
+                case kReservedWord_catch:
+                    break;
+                case kReservedWord_char:
+                    break;
+                case kReservedWord_class:
+                    break;
+                case kReservedWord_const:
+                    break;
+                case kReservedWord_continue:
+                    break;
+                case kReservedWord_debugger:
+                    break;
+                case kReservedWord_default:
+                    break;
+                case kReservedWord_delete:
+                    break;
+                case kReservedWord_do:
+                    break;
+                case kReservedWord_double:
+                    break;
+                case kReservedWord_else:
+                    break;
+                case kReservedWord_enum:
+                    break;
+                case kReservedWord_eval:
+                    break;
+                case kReservedWord_export:
+                    break;
+                case kReservedWord_extends:
+                    break;
+                case kReservedWord_false:
+                    break;
+                case kReservedWord_final:
+                    break;
+                case kReservedWord_finally:
+                    break;
+                case kReservedWord_float:
+                    break;
+                case kReservedWord_for:
+                    break;
+                case kReservedWord_function:
+                    break;
+                case kReservedWord_goto:
+                    break;
+                case kReservedWord_if:
+                    break;
+                case kReservedWord_implements:
+                    break;
+                case kReservedWord_import:
+                    break;
+                case kReservedWord_in:
+                    break;
+                case kReservedWord_instanceof:
+                    break;
+                case kReservedWord_int:
+                    break;
+                case kReservedWord_interface:
+                    break;
+                case kReservedWord_long:
+                    break;
+                case kReservedWord_native:
+                    break;
+                case kReservedWord_new:
+                    break;
+                case kReservedWord_null:
+                    break;
+                case kReservedWord_package:
+                    break;
+                case kReservedWord_private:
+                    break;
+                case kReservedWord_protected:
+                    break;
+                case kReservedWord_public:
+                    break;
+                case kReservedWord_return:
+                    break;
+                case kReservedWord_short:
+                    break;
+                case kReservedWord_static:
+                    break;
+                case kReservedWord_super:
+                    break;
+                case kReservedWord_switch:
+                    break;
+                case kReservedWord_synchronized:
+                    break;
+                case kReservedWord_this:
+                    break;
+                case kReservedWord_throw:
+                    break;
+                case kReservedWord_throws:
+                    break;
+                case kReservedWord_transient:
+                    break;
+                case kReservedWord_true:
+                    break;
+                case kReservedWord_try:
+                    break;
+                case kReservedWord_typeof:
+                    break;
+                case kReservedWord_var:
+                    break;
+                case kReservedWord_void:
+                    break;
+                case kReservedWord_volatile:
+                    break;
+                case kReservedWord_while:
+                    break;
+                case kReservedWord_with:
+                    break;
+            }
+
+        }
+
+
+    }
+    while (false);
 }
 
 var tokenListToString = function(tokenList) {
@@ -1463,6 +1685,12 @@ var tokenListToString = function(tokenList) {
         switch (token.tokenType) {
             case kTokenNone:
                 break;
+            case kTokenReservedWord:
+                if (prvTokenType == kTokenName || prvTokenType == kTokenNumber || prvTokenType == kTokenRegExp || prvTokenType == kTokenReservedWord) {
+                    dump += ' ';
+                }
+                dump += _ESNX_.compiler.reservedWord_wordById[token.token];
+                break;
             case kTokenLiteralString:
                 dump += '"' + escapeStr(token.token) + '"';
                 break;
@@ -1473,8 +1701,8 @@ var tokenListToString = function(tokenList) {
                 dump += token.token + "\n";
                 lineNumber++;
                 break;
-            case kTokenKeyword:
-                if (prvTokenType == kTokenKeyword || prvTokenType == kTokenNumber || prvTokenType == kTokenRegExp) {
+            case kTokenName:
+                if (prvTokenType == kTokenName || prvTokenType == kTokenNumber || prvTokenType == kTokenRegExp || prvTokenType == kTokenReservedWord) {
                     dump += ' ';
                 }
                 dump += token.token;
@@ -1492,7 +1720,7 @@ var tokenListToString = function(tokenList) {
                 dump += '}';
                 break;
             case kTokenNumber:
-                if (prvTokenType == kTokenKeyword || prvTokenType == kTokenNumber || prvTokenType == kTokenRegExp) {
+                if (prvTokenType == kTokenName || prvTokenType == kTokenNumber || prvTokenType == kTokenRegExp || prvTokenType == kTokenReservedWord) {
                     dump += ' ';
                 }
                 dump += token.token;
