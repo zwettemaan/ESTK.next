@@ -9,7 +9,19 @@
 // Don't try to re-define const if they are already defined
 if ("undefined" == typeof kTokenNone)
 {
-const kParserStateIdle                       =     0;
+const kParserStateIdle                       = 3000;
+const kParserStateExpression                 = 3001;
+const kParserStateExpressionPeriod           = 3002;
+const kParserState_LHS_Expression            = 3003;
+const kParserState_LHS_ExpressionPeriod      = 3004;
+const kParserState_LHS_ExpressionToCome      = 3005;
+const kParserStateAssignment                 = 3006;
+const kParserStateBrace                      = 3007;
+const kParserStateArray                      = 3008;
+
+const kStatementType_None                    = 8000;
+const kStatementType_Line                    = 8001;
+const kStatementType_Block                   = 8002;
 
 // Got these keywords by grabbing a list of JavaScript keywords and seeing which ones
 // turn blue in ESTK (meaning it recognizes them)

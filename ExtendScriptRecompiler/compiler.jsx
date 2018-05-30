@@ -200,7 +200,9 @@ var compileScript = function(in_scriptText) {
                 parserState: kParserStateIdle,
                 tokenQueuePos: 0,
                 tokenQueue: [],
-                tokenList: []
+                tokenList: [],
+                stateStack: [],
+                tokenSequence: [],
             };
         
             while (textState.commentState != kCommentStateEOF || scriptContext.scriptCharsQueue.length > 0 || parserContext.tokenQueue.length > 0) {
@@ -1513,6 +1515,8 @@ function processRawScriptChar(scriptContext, textState) {
 function processToken(parserContext) {
 
     do {
+
+        //https://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf
         
         if (parserContext.tokenQueuePos >= parserContext.tokenQueue.length) {
             parserContext.tokenQueue = [];
@@ -1522,149 +1526,142 @@ function processToken(parserContext) {
 
         var token = parserContext.tokenQueue[parserContext.tokenQueuePos];
         parserContext.tokenQueuePos++;
-        switch (parserContext.parserState) {
-            case kParserStateIdle: 
-                handleToken(token);       
+        switch (token.tokenType) {
+            default: 
+                reportError(token, "Unexpected token");
                 break;
+            case kTokenIncrement:
+            case kTokenDecrement:
+                if (parserContext.parserState == kParserStateIdle) {
+                    pushState(token);
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserState_LHS_ExpressionToCome;
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenReservedWord:
+                if (parserContext.parserState == kParserStateIdle) {
+                    parserContext.parserState = token.token;
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenName:
+                if (parserContext.parserState == kParserStateIdle) {
+                    pushState(token);
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserState_LHS_Expression;
+                }
+                else if (parserContext.parserState == kParserState_LHS_ExpressionPeriod) { 
+                    pushState(token);
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserState_LHS_Expression;
+                }
+                else if (parserContext.parserState == kParserStateExpressionPeriod) { 
+                    pushState(token);
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserStateExpression;
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenPeriod:
+                if (parserContext.parserState == kParserState_LHS_Expression) {
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserState_LHS_ExpressionPeriod;
+                }
+                else if (parserContext.parserState == kParserStateExpression) {
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserStateExpressionPeriod;
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenLiteralString:
+            case kTokenNumber:
+                if (parserContext.parserState == kParserStateIdle) {
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserStateExpression;
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenOpenParens:
+                if (parserContext.parserState == kParserStateIdle) {
+                    pushState(token);
+                }
+                else if (parserContext.parserState == kParserState_LHS_Expression) {
+                    pushState(token);
+                    parserContext.parserState = kParserStateExpression;
+                    parserContext.parenthesizedExpression = false; // commas separate params
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenOpenBrace:
+                if (parserContext.parserState == kParserStateIdle) {
+                    pushState(token);
+                    parserContext.parserState = kParserStateBrace;
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenOpenBracket:
+                if (parserContext.parserState == kParserStateIdle) {
+                    parserContext.tokenSequence.push(token);
+                    parserContext.parserState = kParserStateArray;
+                }
+                else {
+                    reportError(token, "Unexpected token");
+                }
+                break;
+            case kTokenCloseParens:
+                var savedState = stateStackTop();
+                if (! savedState || savedState.token != kTokenOpenParens) {
+                    reportError(token, "Unbalanced close parenthesis");
+                }
+                else {
+                    parserContext.stateStack.pop();
+                    parserContext.parserState = savedState.state;
+                    parserContext.tokenSequence = parserContext.tokenSequence.concat(savedState.token).concat(savedState.tokenSequence).concat(token);
+                }
+                break;                    
         }
 
-        function handleToken(token) {
-            switch (token.tokenType) {
-                case kTokenReservedWord:
-                    handleReservedWord(token);
-                    break;
+        function reportError(token, message) {
+            LOG_ERROR(message + " " + token.lineNumber);
+        }
+
+        function pushState(token) {
+            parserContext.stateStack.push({ 
+                token: token,
+                state: parserContext.parserState,
+                parenthesizedExpression: parserContext.parenthesizedExpression,
+                tokenSequence: parserContext.tokenSequence
+            });
+            parserContext.parserState = kParserStateIdle;
+            parserContext.parenthesizedExpression = true;
+            parserContext.tokenSequence = [];
+        }
+
+        function stateStackTop() {
+            var retVal = undefined;
+            if (parserContext.stateStack.length == 0) {
+                LOG_ERROR("popState: no more states");
             }
-        }
-
-        function handleReservedWord(token) {
-            switch (token.token) {
-                default:
-                    LOG_ERROR("handleReservedWord: unexpected token");
-                    break;
-                case kReservedWord_abstract:
-                    break;
-                case kReservedWord_boolean:
-                    break;
-                case kReservedWord_break:
-                    break;
-                case kReservedWord_byte:
-                    break;
-                case kReservedWord_case:
-                    break;
-                case kReservedWord_catch:
-                    break;
-                case kReservedWord_char:
-                    break;
-                case kReservedWord_class:
-                    break;
-                case kReservedWord_const:
-                    break;
-                case kReservedWord_continue:
-                    break;
-                case kReservedWord_debugger:
-                    break;
-                case kReservedWord_default:
-                    break;
-                case kReservedWord_delete:
-                    break;
-                case kReservedWord_do:
-                    break;
-                case kReservedWord_double:
-                    break;
-                case kReservedWord_else:
-                    break;
-                case kReservedWord_enum:
-                    break;
-                case kReservedWord_eval:
-                    break;
-                case kReservedWord_export:
-                    break;
-                case kReservedWord_extends:
-                    break;
-                case kReservedWord_false:
-                    break;
-                case kReservedWord_final:
-                    break;
-                case kReservedWord_finally:
-                    break;
-                case kReservedWord_float:
-                    break;
-                case kReservedWord_for:
-                    break;
-                case kReservedWord_function:
-                    break;
-                case kReservedWord_goto:
-                    break;
-                case kReservedWord_if:
-                    break;
-                case kReservedWord_implements:
-                    break;
-                case kReservedWord_import:
-                    break;
-                case kReservedWord_in:
-                    break;
-                case kReservedWord_instanceof:
-                    break;
-                case kReservedWord_int:
-                    break;
-                case kReservedWord_interface:
-                    break;
-                case kReservedWord_long:
-                    break;
-                case kReservedWord_native:
-                    break;
-                case kReservedWord_new:
-                    break;
-                case kReservedWord_null:
-                    break;
-                case kReservedWord_package:
-                    break;
-                case kReservedWord_private:
-                    break;
-                case kReservedWord_protected:
-                    break;
-                case kReservedWord_public:
-                    break;
-                case kReservedWord_return:
-                    break;
-                case kReservedWord_short:
-                    break;
-                case kReservedWord_static:
-                    break;
-                case kReservedWord_super:
-                    break;
-                case kReservedWord_switch:
-                    break;
-                case kReservedWord_synchronized:
-                    break;
-                case kReservedWord_this:
-                    break;
-                case kReservedWord_throw:
-                    break;
-                case kReservedWord_throws:
-                    break;
-                case kReservedWord_transient:
-                    break;
-                case kReservedWord_true:
-                    break;
-                case kReservedWord_try:
-                    break;
-                case kReservedWord_typeof:
-                    break;
-                case kReservedWord_var:
-                    break;
-                case kReservedWord_void:
-                    break;
-                case kReservedWord_volatile:
-                    break;
-                case kReservedWord_while:
-                    break;
-                case kReservedWord_with:
-                    break;
+            else {
+                var retVal = parserContext.stateStack[parserContext.stateStack.length - 1];
             }
-
+            return retVal;
         }
-
 
     }
     while (false);
