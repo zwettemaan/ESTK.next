@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\ESTK_N">
+      <UniqueIdentifier>{fb90139a-e48b-45fa-9979-9b0b668fb7bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Debug">
+      <UniqueIdentifier>{a7d0479a-b81a-4fbc-90c0-b8ba52dd2cfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScCore">
+      <UniqueIdentifier>{c72e3d09-e6d3-44a0-9e50-ffe8d750016d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScScript">
+      <UniqueIdentifier>{2f186811-f6ca-4712-832f-0b6c11802433}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ESTK.cmd\config.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\InitTerm.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\Callback.hpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\Logger.hpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\Utils.hpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\Debug\VerifyObject.hpp">
+      <Filter>Source Files\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Array.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Callbacks.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\CocoaUtils.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Context.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\DebugAlert.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Dialogs.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Dictionary.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Encoder.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Error.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\ErrorInfo.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\File.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\FileSpec.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\InitTerm.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\InterfacePtr.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\LiveObject.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Localizer.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\OpaqueTypes.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\THashTable.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\TSimpleArray.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Utils.h">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\Variant.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\XML.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\BreakpointInfo.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\Callback.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\DebugAPI.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\Debugger.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\Engine.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\ESContext.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\InitTerm.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\Node.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\Object.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\OpaqueTypes.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\ParserAPI.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\Preprocessor.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\ProfilerData.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\ScopeNode.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\Script.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScScript\ScriptContainer.hpp">
+      <Filter>Source Files\ScScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\WinUtilsWrapper.hpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ESTK.cmd\ScCore\String.hpp">
+      <Filter>Source Files\ScCore</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ESTK.cmd\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\Callback.cpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\Logger.cpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\Utils.cpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ESTK.cmd\Debug\VerifyObject.cpp">
+      <Filter>Source Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\WinUtilsWrapper.cpp">
+      <Filter>Source Files\ESTK_N</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -5,6 +5,8 @@
 
 #if MACINTOSH
 #include "CocoaUtilsWrapper.hpp"
+#else
+#include "WinUtilsWrapper.hpp"
 #endif
 
 namespace ESTK_N {

@@ -5,6 +5,7 @@
 #include <ios>
 #include <iomanip>
 #include <sstream>
+#include <memory>
 
 #include "../ESTK_N/CocoaUtilsWrapper.hpp"
 

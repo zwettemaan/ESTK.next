@@ -4,3 +4,10 @@ MacExperiment/ESTK.cmd/AdobeScCore.framework
 MacExperiment/ESTK.cmd/DerivedData
 MacExperiment/ESTK.cmd/ESTK.cmd.xcodeproj/project.xcworkspace
 MacExperiment/ESTK.cmd/ESTK.cmd.xcodeproj/xcuserdata
+Experiment/ESTK.cmd/ScCore.exp
+Experiment/ESTK.cmd/ScCore.def
+Experiment/ESTK.cmd/ExtendScript.exp
+Experiment/ESTK.cmd/ExtendScript.def
+*.ipch
+*.db
+Experiment/ESTK.cmd/ESTK.vs2015/Debug/

@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A00728EF-7E63-482F-BA74-9BB8B8BB2DF3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>ESTKcmd</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ExtendScript.lib;ScCore.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ESTK.cmd\config.h" />
+    <ClInclude Include="..\ESTK.cmd\Debug\VerifyObject.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\Callback.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\Logger.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\Utils.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ESTK_N\WinUtilsWrapper.hpp" />
+    <ClInclude Include="..\ESTK.cmd\InitTerm.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Array.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Callbacks.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\CocoaUtils.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Context.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\DebugAlert.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Dialogs.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Dictionary.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Encoder.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Error.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\ErrorInfo.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\File.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\FileSpec.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\InitTerm.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\InterfacePtr.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\LiveObject.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Localizer.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\OpaqueTypes.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\String.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\THashTable.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\TSimpleArray.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Utils.h" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\Variant.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScCore\XML.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\BreakpointInfo.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\Callback.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\DebugAPI.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\Debugger.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\Engine.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\ESContext.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\InitTerm.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\Node.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\Object.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\OpaqueTypes.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\ParserAPI.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\Preprocessor.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\ProfilerData.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\ScopeNode.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\Script.hpp" />
+    <ClInclude Include="..\ESTK.cmd\ScScript\ScriptContainer.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ESTK.cmd\Debug\VerifyObject.cpp" />
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\Callback.cpp" />
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\Logger.cpp" />
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\Utils.cpp" />
+    <ClCompile Include="..\ESTK.cmd\ESTK_N\WinUtilsWrapper.cpp" />
+    <ClCompile Include="..\ESTK.cmd\main.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
