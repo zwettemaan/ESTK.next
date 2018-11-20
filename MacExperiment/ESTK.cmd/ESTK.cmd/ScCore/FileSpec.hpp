@@ -2,8 +2,6 @@
 #define __ScCore_FileSpec__
 
 #include "Root.hpp"
-#include "String.hpp"
-#include "Array.hpp"
 
 namespace ScCore {
 
@@ -16,6 +14,8 @@ namespace ScCore {
 class SpecData;
 class FileFilter;
 class FSRef;
+class String;
+class Array;
 
 class FileSpec: Root {
 public:

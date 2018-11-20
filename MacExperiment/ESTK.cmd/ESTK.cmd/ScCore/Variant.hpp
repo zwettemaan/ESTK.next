@@ -4,8 +4,6 @@
 #include "Root.hpp"
 #include "Error.hpp"
 #include "FileSpec.hpp"
-#include "Array.hpp"
-#include "String.hpp"
 
 #include "InterfacePtr.hpp"
 #include "THashTable.hpp"
@@ -24,6 +22,7 @@ class Point;
 class Rect;
 class RegExp;
 class UnitValue;
+class String;
 
   //
   // All of these signatures are guesswork!

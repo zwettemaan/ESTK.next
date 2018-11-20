@@ -2,7 +2,6 @@
 #define __ScCore_Error__
 
 #include "Root.hpp"
-#include "String.hpp"
 #include "ErrorInfo.hpp"
 
 namespace ScCore {
@@ -16,6 +15,7 @@ namespace ScCore {
 class Variant;
 class Cloneable;
 class LiveObject;
+class String;
 
 class Error: Root {
 public:
